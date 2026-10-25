@@ -28,6 +28,8 @@ Open http://localhost:3000 and sign in with any email. Without an email key, the
 - Detail view: palette chips that copy as HEX, RGB or CMYK; title, note, category, tags, boards, credit and source, saved as you go; “Find colour” from any swatch; ← / → between images; delete
 
 - Moodboards: drag a board's images onto an artboard (A4, A3, 16:9, square or portrait), move, resize, layer, arrange automatically, pick a background, and export a print-ready PDF with a credits page
+- Presentation mode for any board (moodboard first, then each image; arrows, swipe, full screen)
+- Share a board with a client by link: no account needed to view, present, vote 👍/👎 and leave notes; feedback shows on the board page; stop sharing revokes the link
 - Landing page with scroll-driven GSAP scenes and a live colour-search demo
 
 ## Deploy to Cloudflare

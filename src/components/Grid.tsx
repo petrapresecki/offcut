@@ -53,9 +53,10 @@ type CardProps = {
   selecting?: boolean;
   selected?: boolean;
   onToggle?: () => void;
+  badge?: { up: number; down: number; notes: number };
 };
 
-export function ItemCard({ item, href, selecting, selected, onToggle }: CardProps) {
+export function ItemCard({ item, href, selecting, selected, onToggle, badge }: CardProps) {
   const image = (
     <>
       <div className="relative overflow-hidden" style={{ aspectRatio: `${item.width} / ${item.height}`, background: item.palette[0]?.hex }}>
@@ -67,6 +68,13 @@ export function ItemCard({ item, href, selecting, selected, onToggle }: CardProp
           decoding="async"
           className={`h-full w-full object-cover transition duration-700 ease-out-expo group-hover:scale-[1.02] ${selected ? "scale-[0.94]" : ""}`}
         />
+        {badge && (
+          <span className="label absolute right-2 bottom-2 flex gap-2 bg-ink/85 px-2 py-1 text-paper" aria-label={`${badge.up} yes, ${badge.down} no, ${badge.notes} notes`}>
+            {badge.up > 0 && <span>👍 {badge.up}</span>}
+            {badge.down > 0 && <span>👎 {badge.down}</span>}
+            {badge.notes > 0 && <span>✎ {badge.notes}</span>}
+          </span>
+        )}
         {selecting && (
           <span
             aria-hidden

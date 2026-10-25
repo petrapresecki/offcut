@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray, notExists } from "drizzle-orm";
 import { getBucket, getDb } from "@/db";
-import { boardItems, boards, itemTags, items, tags } from "@/db/schema";
+import { boardItems, boards, comments, itemTags, items, tags } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
+import { randomToken } from "@/lib/crypto";
 import { addToBoard, uniqueSlug } from "@/lib/boards";
 import { isCategory } from "@/lib/categories";
 import { findDuplicate } from "@/lib/items";
@@ -187,6 +188,33 @@ export async function setCanvasSettings(boardId: string, settings: { format?: st
   if (!Object.keys(patch).length) return;
   const db = await getDb();
   await db.update(boards).set(patch).where(eq(boards.id, boardId));
+}
+
+export async function shareBoard(boardId: string) {
+  const user = await requireUser();
+  const board = await ownedBoard(user.id, boardId);
+  if (!board) return { error: "Board not found." };
+  const token = board.shareToken ?? randomToken(18);
+  const db = await getDb();
+  await db.update(boards).set({ isPublic: true, shareToken: token }).where(eq(boards.id, boardId));
+  return { token };
+}
+
+/** Stops sharing. The old link stops working for good; sharing again makes a new one. */
+export async function unshareBoard(boardId: string) {
+  const user = await requireUser();
+  if (!(await ownedBoard(user.id, boardId))) return;
+  const db = await getDb();
+  await db.update(boards).set({ isPublic: false, shareToken: null }).where(eq(boards.id, boardId));
+}
+
+export async function deleteComment(commentId: string) {
+  const user = await requireUser();
+  const db = await getDb();
+  const row = await db.query.comments.findFirst({ where: eq(comments.id, commentId) });
+  if (!row || !(await ownedBoard(user.id, row.boardId))) return;
+  await db.delete(comments).where(eq(comments.id, commentId));
+  revalidatePath("/library", "layout");
 }
 
 export async function deleteBoard(boardId: string) {

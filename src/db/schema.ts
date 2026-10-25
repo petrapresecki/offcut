@@ -72,7 +72,8 @@ export const boards = sqliteTable(
     name: text("name").notNull(),
     slug: text("slug").notNull(),
     isPublic: integer("is_public", { mode: "boolean" }).notNull().default(false),
-    shareToken: text("share_token"),
+    // Set while the board is shared; changing or clearing it revokes the old link.
+    shareToken: text("share_token").unique(),
     // Moodboard artboard: a format id from src/lib/canvas.ts and a background colour.
     canvasFormat: text("canvas_format").notNull().default("a4"),
     canvasBg: text("canvas_bg").notNull().default("#f2efe8"),
@@ -124,6 +125,43 @@ export const itemTags = sqliteTable(
       .references(() => tags.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.itemId, t.tagId] })],
+);
+
+// Feedback from people a board is shared with. They have no account: a random key kept in their
+// browser lets them change their own vote or remove their own comment.
+export const votes = sqliteTable(
+  "votes",
+  {
+    boardId: text("board_id")
+      .notNull()
+      .references(() => boards.id, { onDelete: "cascade" }),
+    itemId: text("item_id")
+      .notNull()
+      .references(() => items.id, { onDelete: "cascade" }),
+    clientKey: text("client_key").notNull(),
+    name: text("name").notNull(),
+    vote: text("vote", { enum: ["up", "down"] }).notNull(),
+    updatedAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.boardId, t.itemId, t.clientKey] })],
+);
+
+export const comments = sqliteTable(
+  "comments",
+  {
+    id: text("id").primaryKey(),
+    boardId: text("board_id")
+      .notNull()
+      .references(() => boards.id, { onDelete: "cascade" }),
+    itemId: text("item_id")
+      .notNull()
+      .references(() => items.id, { onDelete: "cascade" }),
+    clientKey: text("client_key").notNull(),
+    name: text("name").notNull(),
+    body: text("body").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("comments_board_idx").on(t.boardId, t.createdAt)],
 );
 
 export type Item = typeof items.$inferSelect;

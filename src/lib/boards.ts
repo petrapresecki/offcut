@@ -61,7 +61,7 @@ export async function boardCards(userId: string, boardId: string) {
 }
 
 /** Everything the moodboard editor needs: each item with its canvas placement (or null). */
-export async function boardCanvas(userId: string, boardId: string) {
+export async function boardCanvas(userId: string, boardId: string, url: (key: string) => string = imageUrl) {
   const db = await getDb();
   const rows = await db
     .select({ item: items, x: boardItems.x, y: boardItems.y, w: boardItems.w, h: boardItems.h, z: boardItems.z })
@@ -71,10 +71,11 @@ export async function boardCanvas(userId: string, boardId: string) {
     .orderBy(desc(boardItems.position));
   return rows.map(({ item, x, y, w, h, z }) => ({
     id: item.id,
-    thumbUrl: imageUrl(item.thumbKey),
-    imageUrl: imageUrl(item.imageKey),
+    thumbUrl: url(item.thumbKey),
+    imageUrl: url(item.imageKey),
     width: item.width,
     height: item.height,
+    palette: item.palette,
     title: item.title,
     credit: item.credit,
     sourceUrl: item.sourceUrl,

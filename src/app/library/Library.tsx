@@ -29,9 +29,11 @@ type Props = {
   board?: BoardRef;
   heading: React.ReactNode;
   empty: React.ReactNode;
+  /** Client feedback per item, shown on board pages. */
+  badges?: Record<string, { up: number; down: number; notes: number }>;
 };
 
-export function Library({ items, boards, board, heading, empty }: Props) {
+export function Library({ items, boards, board, heading, empty, badges }: Props) {
   const router = useRouter();
   const params = useSearchParams();
   const [, startTransition] = useTransition();
@@ -253,6 +255,7 @@ export function Library({ items, boards, board, heading, empty }: Props) {
               selecting={selecting}
               selected={selected.has(item.id)}
               onToggle={() => toggle(item.id)}
+              badge={badges?.[item.id]}
             />
           ))}
         </Masonry>
