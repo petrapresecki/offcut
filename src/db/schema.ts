@@ -102,31 +102,6 @@ export const boardItems = sqliteTable(
   (t) => [primaryKey({ columns: [t.boardId, t.itemId] })],
 );
 
-export const tags = sqliteTable(
-  "tags",
-  {
-    id: text("id").primaryKey(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    name: text("name").notNull(),
-  },
-  (t) => [uniqueIndex("tags_user_name_idx").on(t.userId, t.name)],
-);
-
-export const itemTags = sqliteTable(
-  "item_tags",
-  {
-    itemId: text("item_id")
-      .notNull()
-      .references(() => items.id, { onDelete: "cascade" }),
-    tagId: text("tag_id")
-      .notNull()
-      .references(() => tags.id, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.itemId, t.tagId] })],
-);
-
 // Feedback from people a board is shared with. They have no account: a random key kept in their
 // browser lets them change their own vote or remove their own comment.
 export const votes = sqliteTable(

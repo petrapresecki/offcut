@@ -7,9 +7,8 @@ import { motion } from "motion/react";
 import type { Swatch } from "@/db/schema";
 import { CATEGORIES } from "@/lib/categories";
 import { hexToRgb, luminance, rgbToCmyk } from "@/lib/color";
-import { addTag, createBoard, deleteItem, removeTag, setItemOnBoard, updateItem, type ItemFields } from "../actions";
+import { createBoard, deleteItem, setItemOnBoard, updateItem, type ItemFields } from "../actions";
 import type { BoardRef } from "../Library";
-import { normalizeTag } from "@/lib/tags";
 
 type Detail = ItemFields & {
   id: string;
@@ -34,15 +33,13 @@ function formatSwatch(hex: string, format: Format) {
 
 type Props = {
   item: Detail;
-  tags: string[];
-  allTags: string[];
   boards: BoardRef[];
   onBoards: string[];
   prevId: string | null;
   nextId: string | null;
 };
 
-export function ItemDetail({ item, tags, allTags, boards, onBoards, prevId, nextId }: Props) {
+export function ItemDetail({ item, boards, onBoards, prevId, nextId }: Props) {
   const router = useRouter();
   const [fields, setFields] = useState<ItemFields>(item);
   const saved = useRef<ItemFields>(item);
@@ -120,24 +117,30 @@ export function ItemDetail({ item, tags, allTags, boards, onBoards, prevId, next
             <span className="label text-muted">Why I saved it</span>
             <textarea value={fields.note} onChange={set("note")} onBlur={() => save()} rows={3} placeholder="The kerning on the headline, the grain…" className={`${field} resize-y`} />
           </label>
-          <label className="block space-y-1">
-            <span className="label text-muted">Category</span>
-            <select
-              value={fields.category}
-              onChange={(e) => {
-                const next = { ...fields, category: e.target.value };
-                setFields(next);
-                save(next);
-              }}
-              className={field}
-            >
-              <option value="">None</option>
-              {CATEGORIES.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </select>
-          </label>
-          <Tags itemId={item.id} initial={tags} suggestions={allTags} />
+          {/* Every category in view at once, as chips: one click to set, another to clear. */}
+          <fieldset className="space-y-2">
+            <legend className="label mb-2 text-muted">Category</legend>
+            <div className="flex flex-wrap gap-1.5">
+              {CATEGORIES.map((c) => {
+                const on = fields.category === c;
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => {
+                      const next = { ...fields, category: on ? "" : c };
+                      setFields(next);
+                      save(next);
+                    }}
+                    className="field px-2.5 py-1 transition-colors hover:text-ink aria-pressed:bg-ink aria-pressed:text-paper"
+                  >
+                    {c}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
           <label className="block space-y-1">
             <span className="label text-muted">Designer / credit</span>
             <input value={fields.credit} onChange={set("credit")} onBlur={() => save()} placeholder="Studio or designer" className={field} />
@@ -249,68 +252,6 @@ function Palette({ palette }: { palette: Swatch[] }) {
       </ul>
       {format === "cmyk" && <p className="text-xs text-muted">CMYK values are approximate. Check against your print profile.</p>}
     </section>
-  );
-}
-
-function Tags({ itemId, initial, suggestions }: { itemId: string; initial: string[]; suggestions: string[] }) {
-  const [tags, setTags] = useState(initial);
-  const [draft, setDraft] = useState("");
-  const [, startTransition] = useTransition();
-  const listId = `tag-suggestions-${itemId}`;
-
-  const add = (raw: string) => {
-    const name = normalizeTag(raw);
-    setDraft("");
-    if (!name || tags.includes(name)) return;
-    setTags((t) => [...t, name].sort());
-    startTransition(() => addTag(itemId, name));
-  };
-  const remove = (name: string) => {
-    setTags((t) => t.filter((x) => x !== name));
-    startTransition(() => removeTag(itemId, name));
-  };
-
-  return (
-    <div className="space-y-2">
-      <span className="label block text-muted" id={`${listId}-label`}>Tags</span>
-      <ul className="flex flex-wrap gap-1.5" aria-labelledby={`${listId}-label`}>
-        {tags.map((t) => (
-          <li key={t} className="field flex items-center">
-            <Link href={`/library?tag=${encodeURIComponent(t)}`} className="py-0.5 pl-2 text-sm hover:underline">
-              #{t}
-            </Link>
-            <button onClick={() => remove(t)} aria-label={`Remove tag ${t}`} className="px-1.5 text-muted hover:text-danger">
-              ×
-            </button>
-          </li>
-        ))}
-      </ul>
-      <input
-        value={draft}
-        list={listId}
-        onChange={(e) => {
-          // Typing a comma adds the tag, like most tag fields.
-          if (e.target.value.endsWith(",")) add(e.target.value.slice(0, -1));
-          else setDraft(e.target.value);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            add(draft);
-          }
-          if (e.key === "Backspace" && !draft && tags.length) remove(tags[tags.length - 1]);
-        }}
-        onBlur={() => draft && add(draft)}
-        placeholder="Add a tag, press Enter"
-        aria-label="Add a tag"
-        className="w-full border-b border-line bg-transparent py-1.5 text-sm outline-none focus-visible:border-ink focus-visible:outline-none"
-      />
-      <datalist id={listId}>
-        {suggestions.filter((s) => !tags.includes(s)).map((s) => (
-          <option key={s} value={s} />
-        ))}
-      </datalist>
-    </div>
   );
 }
 

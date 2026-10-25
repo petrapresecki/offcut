@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { ItemCard, Masonry } from "@/components/Grid";
+import { CATEGORIES } from "@/lib/categories";
 import { applyFilters, filtersToQuery, readFilters, type Filters } from "@/lib/filter";
 import { ACCEPTED_TYPES, prepareImage, type Prepared } from "@/lib/image";
 import type { CardItem } from "@/lib/items";
@@ -41,6 +42,20 @@ export function Library({ items, boards, board, heading, empty, badges }: Props)
   const [dragging, setDragging] = useState(false);
   const [filters, setFilters] = useState<Filters>(() => readFilters(new URLSearchParams(params.toString())));
   const [selecting, setSelecting] = useState(false);
+  const [grouped, setGrouped] = useState(false);
+  // Grouping is a way of looking, so it's remembered in this browser rather than in the URL.
+  useEffect(() => {
+    try {
+      setGrouped(localStorage.getItem("offcut-group") === "category");
+    } catch {}
+  }, []);
+  const toggleGrouped = () =>
+    setGrouped((g) => {
+      try {
+        localStorage.setItem("offcut-group", g ? "" : "category");
+      } catch {}
+      return !g;
+    });
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -152,8 +167,27 @@ export function Library({ items, boards, board, heading, empty, badges }: Props)
 
   const shown = useMemo(() => applyFilters(items, filters), [items, filters]);
   const categories = useMemo(() => [...new Set(items.flatMap((i) => (i.category ? [i.category] : [])))], [items]);
-  const tags = useMemo(() => [...new Set(items.flatMap((i) => i.tags))].sort(), [items]);
+  const groups = useMemo(() => {
+    if (!grouped) return [];
+    const order = [...CATEGORIES, null] as (string | null)[];
+    return order
+      .map((c) => ({ name: c ?? "No category", items: shown.filter((i) => (i.category ?? null) === c) }))
+      .filter((g) => g.items.length);
+  }, [grouped, shown]);
   const filtered = shown.length !== items.length;
+
+  const card = (item: CardItem) => (
+    <ItemCard
+      key={item.id}
+      data-ratio={item.height / item.width}
+      item={item}
+      href={`/library/${item.id}`}
+      selecting={selecting}
+      selected={selected.has(item.id)}
+      onToggle={() => toggle(item.id)}
+      badge={badges?.[item.id]}
+    />
+  );
 
   const toggle = (id: string) =>
     setSelected((s) => {
@@ -177,6 +211,11 @@ export function Library({ items, boards, board, heading, empty, badges }: Props)
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {items.length > 0 && (
+            <button onClick={toggleGrouped} aria-pressed={grouped} className="label field px-3 py-2 text-muted hover:text-ink aria-pressed:bg-ink aria-pressed:text-paper">
+              Group by category
+            </button>
+          )}
           {items.length > 0 && (
             <button
               onClick={() => (selecting ? stopSelecting() : setSelecting(true))}
@@ -206,7 +245,7 @@ export function Library({ items, boards, board, heading, empty, badges }: Props)
         </div>
       </div>
 
-      {items.length > 0 && <FilterBar filters={filters} onChange={changeFilters} categories={categories} tags={tags} />}
+      {items.length > 0 && <FilterBar filters={filters} onChange={changeFilters} categories={categories} />}
 
       {items.length === 0 && uploads.length === 0 ? (
         <div className="crop-marks grid min-h-[60vh] place-items-center field p-8 text-center [--marks-opacity:1]">
@@ -221,44 +260,46 @@ export function Library({ items, boards, board, heading, empty, badges }: Props)
         <div className="grid min-h-[40vh] place-items-center text-center">
           <div className="space-y-3">
             <p className="text-xl font-medium">Nothing matches.</p>
-            <button onClick={() => changeFilters({ q: "", color: null, category: null, tag: null })} className="label text-muted underline underline-offset-2 hover:text-ink">
+            <button onClick={() => changeFilters({ q: "", color: null, category: null })} className="label text-muted underline underline-offset-2 hover:text-ink">
               Clear filters
             </button>
           </div>
         </div>
       ) : (
-        <Masonry>
-          {uploads.map((u) => (
-            <UploadCard
-              key={u.key}
-              upload={u}
-              boardName={board?.name}
-              onKeep={() => u.prepared && send(u.key, u.prepared)}
-              onUseExisting={
-                board && u.duplicate
-                  ? async () => {
-                      await setItemOnBoard(board.id, u.duplicate!.id, true);
-                      patch(u.key, null);
-                      router.refresh();
-                    }
-                  : undefined
-              }
-              onDismiss={() => patch(u.key, null)}
-            />
+        <div className="space-y-14">
+          {(uploads.length > 0 || !grouped) && (
+            <Masonry>
+              {uploads.map((u) => (
+                <UploadCard
+                  key={u.key}
+                  upload={u}
+                  boardName={board?.name}
+                  onKeep={() => u.prepared && send(u.key, u.prepared)}
+                  onUseExisting={
+                    board && u.duplicate
+                      ? async () => {
+                          await setItemOnBoard(board.id, u.duplicate!.id, true);
+                          patch(u.key, null);
+                          router.refresh();
+                        }
+                      : undefined
+                  }
+                  onDismiss={() => patch(u.key, null)}
+                />
+              ))}
+              {!grouped && shown.map(card)}
+            </Masonry>
+          )}
+          {groups.map((g) => (
+            <section key={g.name} aria-label={g.name}>
+              <h2 className="title mb-4 text-[clamp(22px,2vw,28px)]">
+                {g.name}
+                <sup>{g.items.length}</sup>
+              </h2>
+              <Masonry>{g.items.map(card)}</Masonry>
+            </section>
           ))}
-          {shown.map((item) => (
-            <ItemCard
-              key={item.id}
-              data-ratio={item.height / item.width}
-              item={item}
-              href={`/library/${item.id}`}
-              selecting={selecting}
-              selected={selected.has(item.id)}
-              onToggle={() => toggle(item.id)}
-              badge={badges?.[item.id]}
-            />
-          ))}
-        </Masonry>
+        </div>
       )}
 
       <AnimatePresence>

@@ -65,70 +65,74 @@ a {
   text-decoration-thickness: 1px;
 }
 
-/* Small meta text in the mono, sentence case. */
-.label {
-  font-family: var(--font-reddit), monospace;
-  font-size: 12px;
-  line-height: 1.4;
-  letter-spacing: 0;
-}
+/* Shared classes sit in the components layer so Tailwind utilities on the same element
+   (aria-pressed:bg-ink, text sizes…) override them instead of losing to them. */
+@layer components {
+  /* Small meta text in the mono, sentence case. */
+  .label {
+    font-family: var(--font-reddit), monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    letter-spacing: 0;
+  }
 
-/* A plain blue link, the way type foundries leave them. */
-.link {
-  color: var(--accent);
-  text-decoration: underline;
-}
+  /* A plain blue link, the way type foundries leave them. */
+  .link {
+    color: var(--accent);
+    text-decoration: underline;
+  }
 
-/* The one control shape: a grey field with small corners. */
-.field {
-  background: var(--field);
-  border-radius: var(--radius-kit);
-}
+  /* The one control shape: a grey field with small corners. */
+  .field {
+    background: var(--field);
+    border-radius: var(--radius-kit);
+  }
 
-/* Page titles: Ronzino, larger, with an optional superscript count. */
-.title {
-  font-family: var(--font-host), sans-serif;
-  font-size: clamp(30px, 3vw, 46px);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
-  font-weight: 300;
-}
+  /* Page titles in Host Grotesk Light, with an optional count beside them. */
+  .title {
+    font-family: var(--font-host), sans-serif;
+    font-size: clamp(30px, 3vw, 46px);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    font-weight: 300;
+  }
 
-/* Big sentences and names: Host Grotesk Light. */
-.heading {
-  font-family: var(--font-host), sans-serif;
-  font-weight: 300;
-  letter-spacing: -0.02em;
-}
-/* A count beside a title, small and in brackets: Library [ 7 ]. */
-.title sup {
-  font: 400 10px var(--font-reddit), monospace;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  margin-left: 0.6em;
-  vertical-align: 1.9em;
-  color: var(--muted);
-}
-.title sup::before {
-  content: "[ ";
-}
-.title sup::after {
-  content: " ]";
-}
+  /* Big sentences and names: Host Grotesk Light. */
+  .heading {
+    font-family: var(--font-host), sans-serif;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+  }
+  /* A count beside a title, small and in brackets: Library [ 7 ]. */
+  .title sup {
+    font: 400 10px var(--font-reddit), monospace;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    margin-left: 0.6em;
+    vertical-align: 1.9em;
+    color: var(--muted);
+  }
+  .title sup::before {
+    content: "[ ";
+  }
+  .title sup::after {
+    content: " ]";
+  }
 
-/* Sprat, for the one loud thing per screen. */
-.display {
-  font-family: var(--font-sprat), serif;
-  /* Sprat's axes are wdth 100–200 (100 is condensed) and wght 10–200. */
-  font-variation-settings: "wdth" 100, "wght" 200;
-  text-transform: uppercase;
-  line-height: 0.82;
-  letter-spacing: 0;
-}
+  /* Sprat, for the one loud thing per screen. */
+  .display {
+    font-family: var(--font-sprat), serif;
+    /* Sprat's axes are wdth 100–200 (100 is condensed) and wght 10–200. */
+    font-variation-settings: "wdth" 100, "wght" 200;
+    text-transform: uppercase;
+    line-height: 0.82;
+    letter-spacing: 0;
+  }
 
-/* Kept as a hook while old markup is cleaned up; it no longer draws anything. */
-.crop-marks {
-  position: relative;
+  /* Kept as a hook while old markup is cleaned up; it no longer draws anything. */
+  .crop-marks {
+    position: relative;
+  }
 }
 
 :focus-visible {

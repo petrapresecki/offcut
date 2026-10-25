@@ -1,15 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { and, eq, inArray, notExists } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { getBucket, getDb } from "@/db";
-import { boardItems, boards, comments, itemTags, items, tags } from "@/db/schema";
+import { boardItems, boards, comments, items } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { randomToken } from "@/lib/crypto";
 import { addToBoard, uniqueSlug } from "@/lib/boards";
 import { isCategory } from "@/lib/categories";
 import { findDuplicate } from "@/lib/items";
-import { normalizeTag } from "@/lib/tags";
 import { ARTBOARD_WIDTH, artboardHeight, isFormat, type FormatId, type Placement } from "@/lib/canvas";
 
 export async function checkDuplicate(phash: string) {
@@ -48,7 +47,6 @@ export async function deleteItem(id: string) {
     .where(and(eq(items.id, id), eq(items.userId, user.id)))
     .returning();
   if (row) await (await getBucket()).delete([row.imageKey, row.thumbKey]);
-  await deleteUnusedTags(user.id);
   revalidatePath("/library", "layout");
 }
 
@@ -60,35 +58,6 @@ async function ownsItem(userId: string, itemId: string) {
 async function ownedBoard(userId: string, boardId: string) {
   const db = await getDb();
   return db.query.boards.findFirst({ where: and(eq(boards.id, boardId), eq(boards.userId, userId)) });
-}
-
-async function deleteUnusedTags(userId: string) {
-  const db = await getDb();
-  await db
-    .delete(tags)
-    .where(and(eq(tags.userId, userId), notExists(db.select().from(itemTags).where(eq(itemTags.tagId, tags.id)))));
-}
-
-export async function addTag(itemId: string, rawName: string) {
-  const user = await requireUser();
-  const name = normalizeTag(rawName);
-  if (!name || !(await ownsItem(user.id, itemId))) return;
-  const db = await getDb();
-  await db.insert(tags).values({ id: crypto.randomUUID(), userId: user.id, name }).onConflictDoNothing();
-  const tag = await db.query.tags.findFirst({ where: and(eq(tags.userId, user.id), eq(tags.name, name)) });
-  if (tag) await db.insert(itemTags).values({ itemId, tagId: tag.id }).onConflictDoNothing();
-  revalidatePath("/library", "layout");
-}
-
-export async function removeTag(itemId: string, name: string) {
-  const user = await requireUser();
-  if (!(await ownsItem(user.id, itemId))) return;
-  const db = await getDb();
-  const tag = await db.query.tags.findFirst({ where: and(eq(tags.userId, user.id), eq(tags.name, name)) });
-  if (!tag) return;
-  await db.delete(itemTags).where(and(eq(itemTags.itemId, itemId), eq(itemTags.tagId, tag.id)));
-  await deleteUnusedTags(user.id);
-  revalidatePath("/library", "layout");
 }
 
 export async function createBoard(rawName: string, itemId?: string) {

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { boardIdsForItem, listBoards } from "@/lib/boards";
-import { getItem, imageUrl, listItems, listTagNames, tagsByItem } from "@/lib/items";
+import { getItem, imageUrl, listItems } from "@/lib/items";
 import { ItemDetail } from "./ItemDetail";
 
 type Props = { params: Promise<{ id: string }> };
@@ -20,13 +20,7 @@ export default async function ItemPage({ params }: Props) {
   if (!item) notFound();
 
   // Neighbours in library order, for ← / → between images.
-  const [all, tagMap, allTags, boards, onBoards] = await Promise.all([
-    listItems(user.id),
-    tagsByItem(user.id, [id]),
-    listTagNames(user.id),
-    listBoards(user.id),
-    boardIdsForItem(id),
-  ]);
+  const [all, boards, onBoards] = await Promise.all([listItems(user.id), listBoards(user.id), boardIdsForItem(id)]);
   const ids = all.map((i) => i.id);
   const at = ids.indexOf(id);
 
@@ -48,8 +42,6 @@ export default async function ItemPage({ params }: Props) {
         mime: item.mime,
         createdAt: item.createdAt.toISOString(),
       }}
-      tags={tagMap.get(id) ?? []}
-      allTags={allTags}
       boards={boards.map(({ id, name, slug }) => ({ id, name, slug }))}
       onBoards={onBoards}
       prevId={ids[at - 1] ?? null}

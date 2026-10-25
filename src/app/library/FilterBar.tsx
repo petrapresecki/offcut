@@ -8,16 +8,15 @@ type Props = {
   filters: Filters;
   onChange: (next: Filters) => void;
   categories: string[];
-  tags: string[];
 };
 
 const chip =
   "label field px-2.5 py-1 text-muted transition-colors hover:text-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper";
 
-export function FilterBar({ filters, onChange, categories, tags }: Props) {
+export function FilterBar({ filters, onChange, categories }: Props) {
   const search = useRef<HTMLInputElement>(null);
   const set = (patch: Partial<Filters>) => onChange({ ...filters, ...patch });
-  const active = filters.q || filters.color || filters.category || filters.tag;
+  const active = filters.q || filters.color || filters.category;
   const presetMatch = COLOR_PRESETS.some((c) => c.hex === filters.color);
 
   // "/" jumps to search from anywhere that isn't a text field.
@@ -42,7 +41,7 @@ export function FilterBar({ filters, onChange, categories, tags }: Props) {
             value={filters.q}
             onChange={(e) => set({ q: e.target.value })}
             onKeyDown={(e) => e.key === "Escape" && (set({ q: "" }), e.currentTarget.blur())}
-            placeholder="Search notes, titles, credits, #tags"
+            placeholder="Search titles, notes, credits"
             className="w-full bg-transparent py-2 outline-none placeholder:text-muted/70 focus-visible:outline-none"
           />
           <kbd className="label field px-1.5 text-muted">/</kbd>
@@ -87,21 +86,15 @@ export function FilterBar({ filters, onChange, categories, tags }: Props) {
         </div>
       </div>
 
-      {(categories.length > 0 || tags.length > 0 || active) && (
+      {(categories.length > 0 || active) && (
         <div className="flex flex-wrap items-center gap-1.5">
           {CATEGORIES.filter((c) => categories.includes(c)).map((c) => (
             <button key={c} type="button" aria-pressed={filters.category === c} onClick={() => set({ category: filters.category === c ? null : c })} className={chip}>
               {c}
             </button>
           ))}
-          {categories.length > 0 && tags.length > 0 && <span aria-hidden className="mx-1 h-4 w-px bg-line" />}
-          {tags.map((t) => (
-            <button key={t} type="button" aria-pressed={filters.tag === t} onClick={() => set({ tag: filters.tag === t ? null : t })} className={`${chip} normal-case`}>
-              #{t}
-            </button>
-          ))}
           {active && (
-            <button type="button" onClick={() => onChange({ q: "", color: null, category: null, tag: null })} className="label ml-auto px-2 py-1 text-muted underline-offset-2 hover:text-ink hover:underline">
+            <button type="button" onClick={() => onChange({ q: "", color: null, category: null })} className="label ml-auto px-2 py-1 text-muted underline-offset-2 hover:text-ink hover:underline">
               Clear filters
             </button>
           )}
