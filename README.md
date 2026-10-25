@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Offcut
 
-## Getting Started
+A library for graphic designers: save the posters, packaging, type and photos that inspire you, find them again by colour, and turn them into moodboards.
 
-First, run the development server:
+Built with Next.js (App Router) on Cloudflare Workers, D1, R2, Drizzle, Tailwind and Motion.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
+## Run it locally
+
+No Cloudflare account needed: D1 and R2 run locally (stored in `.wrangler/`).
+
+```sh
+pnpm install
+pnpm db:migrate:local
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 and sign in with any email. Without an email key, the sign-in link is printed in the terminal and shown on the page.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## What works so far
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Magic-link sign in (one-time links, hashed tokens and sessions)
+- Saving images by drag and drop anywhere on the page, pasting with ⌘V, or choosing files
+- In the browser, before upload: a thumbnail, a colour palette (median cut) and a perceptual hash
+- A warning when an image is already in the library, even resized or recompressed
+- Masonry library, category filter
+- Detail view: palette chips that copy as HEX, RGB or CMYK; title, note, category, credit and source, saved on blur; ← / → between images; delete
 
-## Learn More
+## Deploy to Cloudflare
 
-To learn more about Next.js, take a look at the following resources:
+```sh
+pnpm wrangler d1 create offcut          # put the id into wrangler.jsonc
+pnpm wrangler r2 bucket create offcut-images
+pnpm db:migrate:remote
+pnpm wrangler secret put RESEND_API_KEY # for sign-in emails
+pnpm deploy
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Set `APP_URL` in `wrangler.jsonc` to the deployed URL.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Script | |
+|---|---|
+| `pnpm dev` | Next.js dev server with local Cloudflare bindings |
+| `pnpm preview` | Build for Workers and run it locally in workerd |
+| `pnpm db:generate` | New migration from `src/db/schema.ts` |
+| `pnpm db:migrate:local` / `:remote` | Apply migrations |
+| `pnpm cf-typegen` | Regenerate binding types after changing `wrangler.jsonc` |
+| `pnpm typecheck`, `pnpm lint` | |

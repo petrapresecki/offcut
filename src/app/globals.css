@@ -1,26 +1,114 @@
 @import "tailwindcss";
 
+/* Offcut tokens. The saved images bring the colour, so the interface stays paper and ink,
+   with one fluorescent accent borrowed from risograph printing. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --paper: #f2efe8;
+  --sheet: #faf8f4;
+  --ink: #171614;
+  --muted: #6e6a62;
+  --line: rgb(23 22 20 / 0.12);
+  --accent: #ff4f9a;
+  --accent-ink: #171614;
+  --danger: #c4301c;
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --paper: #141311;
+    --sheet: #1c1b18;
+    --ink: #eeeae1;
+    --muted: #9b968b;
+    --line: rgb(238 234 225 / 0.12);
+    --accent: #ff6aa8;
+    --accent-ink: #141311;
+    --danger: #ff7a62;
+    color-scheme: dark;
   }
 }
 
+@theme inline {
+  --color-paper: var(--paper);
+  --color-sheet: var(--sheet);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-archivo);
+  --font-mono: var(--font-plex-mono);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-archivo), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Small uppercase mono labels: metadata, counts, HEX values. */
+.label {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* The wordmark: Archivo at its widest. */
+.wordmark {
+  font-weight: 800;
+  font-stretch: 125%;
+  letter-spacing: -0.03em;
+}
+
+/* Crop marks in the four corners of an element, the app's recurring motif. */
+.crop-marks {
+  --mark: 10px;
+  --gap: 6px;
+  position: relative;
+}
+.crop-marks::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--gap) * -1);
+  pointer-events: none;
+  opacity: var(--marks-opacity, 0);
+  transition: opacity 0.2s, inset 0.4s var(--ease-out-expo);
+  background:
+    linear-gradient(var(--ink), var(--ink)) top left / var(--mark) 1px,
+    linear-gradient(var(--ink), var(--ink)) top left / 1px var(--mark),
+    linear-gradient(var(--ink), var(--ink)) top right / var(--mark) 1px,
+    linear-gradient(var(--ink), var(--ink)) top right / 1px var(--mark),
+    linear-gradient(var(--ink), var(--ink)) bottom left / var(--mark) 1px,
+    linear-gradient(var(--ink), var(--ink)) bottom left / 1px var(--mark),
+    linear-gradient(var(--ink), var(--ink)) bottom right / var(--mark) 1px,
+    linear-gradient(var(--ink), var(--ink)) bottom right / 1px var(--mark);
+  background-repeat: no-repeat;
+}
+.crop-marks:hover,
+.crop-marks:focus-visible,
+.crop-marks[data-active="true"] {
+  --marks-opacity: 1;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
