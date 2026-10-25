@@ -25,7 +25,7 @@ export default async function BoardPage({ params }: Props) {
       items={items}
       board={ref}
       boards={boards.map(({ id, name, slug }) => ({ id, name, slug }))}
-      heading={<BoardHeading board={ref} />}
+      heading={<BoardHeading key={board.id} board={ref} />}
       empty={
         <>
           <p className="text-3xl leading-tight font-semibold tracking-tight" style={{ fontStretch: "112%" }}>
