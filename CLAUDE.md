@@ -22,6 +22,7 @@ Next.js 15 App Router on Cloudflare Workers via `@opennextjs/cloudflare`. D1 (SQ
 - Filters (`q`, `color`, `category`, `tag`) live in the URL and run in the browser over the loaded cards (`src/lib/filter.ts`). Fine for libraries up to a few thousand images; move to SQL if that changes
 - Boards live under `/library/boards`; uploads from a board page are added to that board
 - Landing page: `src/components/landing/`. GSAP via `src/lib/gsap.ts` (plugins registered once); every animation sits inside `gsap.matchMedia()` with `MOTION_OK`, so reduced motion gets the finished layout. Posters are generated SVGs (`posters.tsx`), never other people's work
+- Moodboards: `/library/boards/[slug]/moodboard`. Positions live on `board_items` (x, y, w, h, z) in artboard units (1600 wide, see `src/lib/canvas.ts`); format and background on `boards`. The PDF is built in the browser with jsPDF (`src/lib/pdf.ts`, loaded on demand), with a credits page
 - Conventional commits (`feat:`, `fix:`, `style:`, `chore:`)
 
 ## Roadmap
@@ -29,5 +30,5 @@ Next.js 15 App Router on Cloudflare Workers via `@opennextjs/cloudflare`. D1 (SQ
 2. Phone saving: installable app + Web Share Target
 3. ✅ Search by colour, tags, text search, boards
 4. ✅ Landing page with the motion showcase
-5. Moodboard canvas, PDF export, presentation mode, client feedback, crop, pinned notes
+5. Moodboard canvas ✅, PDF export ✅, presentation mode, client feedback, crop, pinned notes
 6. Save from links, AI tags, typeface guess, "more like this"

@@ -60,6 +60,30 @@ export async function boardCards(userId: string, boardId: string) {
   return rows.map((r) => toCard(r.item, tagMap));
 }
 
+/** Everything the moodboard editor needs: each item with its canvas placement (or null). */
+export async function boardCanvas(userId: string, boardId: string) {
+  const db = await getDb();
+  const rows = await db
+    .select({ item: items, x: boardItems.x, y: boardItems.y, w: boardItems.w, h: boardItems.h, z: boardItems.z })
+    .from(boardItems)
+    .innerJoin(items, eq(items.id, boardItems.itemId))
+    .where(and(eq(boardItems.boardId, boardId), eq(items.userId, userId)))
+    .orderBy(desc(boardItems.position));
+  return rows.map(({ item, x, y, w, h, z }) => ({
+    id: item.id,
+    thumbUrl: imageUrl(item.thumbKey),
+    imageUrl: imageUrl(item.imageKey),
+    width: item.width,
+    height: item.height,
+    title: item.title,
+    credit: item.credit,
+    sourceUrl: item.sourceUrl,
+    placement: x !== null && y !== null && w !== null && h !== null ? { x, y, w, h, z: z ?? 0 } : null,
+  }));
+}
+
+export type CanvasItem = Awaited<ReturnType<typeof boardCanvas>>[number];
+
 /** Ids of the boards this item is on. */
 export async function boardIdsForItem(itemId: string) {
   const db = await getDb();

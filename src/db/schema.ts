@@ -73,6 +73,9 @@ export const boards = sqliteTable(
     slug: text("slug").notNull(),
     isPublic: integer("is_public", { mode: "boolean" }).notNull().default(false),
     shareToken: text("share_token"),
+    // Moodboard artboard: a format id from src/lib/canvas.ts and a background colour.
+    canvasFormat: text("canvas_format").notNull().default("a4"),
+    canvasBg: text("canvas_bg").notNull().default("#f2efe8"),
     createdAt: createdAt(),
   },
   (t) => [uniqueIndex("boards_user_slug_idx").on(t.userId, t.slug)],

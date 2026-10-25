@@ -27,6 +27,9 @@ Open http://localhost:3000 and sign in with any email. Without an email key, the
 - Tags with suggestions; boards with cover mosaics, rename and delete; select several images to add to a board; dropping images on a board page saves them to that board
 - Detail view: palette chips that copy as HEX, RGB or CMYK; title, note, category, tags, boards, credit and source, saved as you go; “Find colour” from any swatch; ← / → between images; delete
 
+- Moodboards: drag a board's images onto an artboard (A4, A3, 16:9, square or portrait), move, resize, layer, arrange automatically, pick a background, and export a print-ready PDF with a credits page
+- Landing page with scroll-driven GSAP scenes and a live colour-search demo
+
 ## Deploy to Cloudflare
 
 ```sh

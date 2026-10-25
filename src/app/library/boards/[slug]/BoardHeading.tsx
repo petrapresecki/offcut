@@ -38,23 +38,28 @@ export function BoardHeading({ board }: { board: BoardRef }) {
           style={{ fontStretch: "112%" }}
         />
       </h1>
-      <button
-        disabled={pending}
-        onClick={() => {
-          if (!confirmDelete) {
-            setConfirmDelete(true);
-            setTimeout(() => setConfirmDelete(false), 3000);
-            return;
-          }
-          startTransition(async () => {
-            await deleteBoard(board.id);
-            router.push("/library/boards");
-          });
-        }}
-        className="label text-muted hover:text-danger"
-      >
-        {confirmDelete ? "Click again to delete the board (images stay in your library)" : "Delete board"}
-      </button>
+      <div className="flex flex-wrap items-center gap-4">
+        <Link href={`/library/boards/${board.slug}/moodboard`} className="label bg-accent px-2.5 py-1 text-accent-ink">
+          Open moodboard →
+        </Link>
+        <button
+          disabled={pending}
+          onClick={() => {
+            if (!confirmDelete) {
+              setConfirmDelete(true);
+              setTimeout(() => setConfirmDelete(false), 3000);
+              return;
+            }
+            startTransition(async () => {
+              await deleteBoard(board.id);
+              router.push("/library/boards");
+            });
+          }}
+          className="label text-muted hover:text-danger"
+        >
+          {confirmDelete ? "Click again to delete the board (images stay in your library)" : "Delete board"}
+        </button>
+      </div>
     </div>
   );
 }

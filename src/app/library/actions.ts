@@ -9,6 +9,7 @@ import { addToBoard, uniqueSlug } from "@/lib/boards";
 import { isCategory } from "@/lib/categories";
 import { findDuplicate } from "@/lib/items";
 import { normalizeTag } from "@/lib/tags";
+import { ARTBOARD_WIDTH, artboardHeight, isFormat, type FormatId, type Placement } from "@/lib/canvas";
 
 export async function checkDuplicate(phash: string) {
   const user = await requireUser();
@@ -143,6 +144,49 @@ export async function renameBoard(boardId: string, rawName: string) {
   await db.update(boards).set({ name, slug }).where(eq(boards.id, boardId));
   revalidatePath("/library", "layout");
   return { slug };
+}
+
+export async function saveCanvas(boardId: string, placements: Placement[], unplaced: string[]) {
+  const user = await requireUser();
+  const board = await ownedBoard(user.id, boardId);
+  if (!board) return { error: "Board not found." };
+  const height = artboardHeight(isFormat(board.canvasFormat) ? board.canvasFormat : "a4");
+  const int = (v: number, min: number, max: number) => Math.round(Math.min(max, Math.max(min, Number(v) || 0)));
+  const db = await getDb();
+  // Items may hang off the artboard edge a little, as on a real desk, but not wander off.
+  const writes = [
+    ...placements.slice(0, 500).map((p) =>
+      db
+        .update(boardItems)
+        .set({
+          x: int(p.x, -ARTBOARD_WIDTH, ARTBOARD_WIDTH * 2),
+          y: int(p.y, -height, height * 2),
+          w: int(p.w, 16, ARTBOARD_WIDTH * 2),
+          h: int(p.h, 16, height * 2),
+          z: int(p.z, 0, 100_000),
+        })
+        .where(and(eq(boardItems.boardId, boardId), eq(boardItems.itemId, p.itemId))),
+    ),
+    ...unplaced.slice(0, 500).map((itemId) =>
+      db
+        .update(boardItems)
+        .set({ x: null, y: null, w: null, h: null, z: null })
+        .where(and(eq(boardItems.boardId, boardId), eq(boardItems.itemId, itemId))),
+    ),
+  ];
+  if (writes.length) await db.batch(writes as [(typeof writes)[number], ...(typeof writes)[number][]]);
+  return { ok: true };
+}
+
+export async function setCanvasSettings(boardId: string, settings: { format?: string; bg?: string }) {
+  const user = await requireUser();
+  if (!(await ownedBoard(user.id, boardId))) return;
+  const patch: { canvasFormat?: FormatId; canvasBg?: string } = {};
+  if (isFormat(settings.format)) patch.canvasFormat = settings.format;
+  if (settings.bg && /^#[0-9a-f]{6}$/i.test(settings.bg)) patch.canvasBg = settings.bg.toLowerCase();
+  if (!Object.keys(patch).length) return;
+  const db = await getDb();
+  await db.update(boards).set(patch).where(eq(boards.id, boardId));
 }
 
 export async function deleteBoard(boardId: string) {
