@@ -1,0 +1,113 @@
+{
+  "site": "Offcut",
+  "brief": "An inspiration library for graphic designers: save posters, packaging, type and street photos, find them by colour, turn them into moodboards for clients. Redesign of the whole app and landing page; the current look feels generic and the fonts aren't right.",
+  "date": "2026-10-25",
+  "concepts": [
+    {
+      "label": "A",
+      "name": "Cutting mat",
+      "idea": "The app is the green self-healing cutting mat on a designer's desk, and every saved image is an offcut lying on it.",
+      "why": "It comes straight from the name and from the friend's desk. Nobody else's product could use it: a cutting mat is where offcuts are made.",
+      "mood": "tactile, workshop, calm green",
+      "colors": { "paper": "#2e6b4e", "ink": "#f3f1ea", "accent": "#1f4f39", "mist": "#3a7a5b", "muted": "#a9c7b6" },
+      "fonts": [
+        { "role": "display", "family": "ABC Whyte Inktrap", "standIn": "Bricolage Grotesque", "google": "Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800", "size": "56px", "weight": 700, "tracking": "-0.02em", "leading": 0.95, "case": "sentence", "sample": "3,723,018 tabs, one mat." },
+        { "role": "body", "family": "ABC Whyte", "standIn": "Bricolage Grotesque", "google": "Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800", "size": "15px", "weight": 400, "tracking": "0", "leading": 1.4, "case": "sentence", "sample": "Poster for Tvornica Kulture, kept for the halftone." },
+        { "role": "measurements", "family": "ABC Whyte Mono", "standIn": "DM Mono", "google": "DM+Mono:wght@400", "size": "11px", "weight": 400, "tracking": "0", "leading": 1, "case": "as is", "sample": "29.7 × 42 cm at 300 dpi" }
+      ],
+      "motion": "Only the images move, like paper: saving drops an offcut onto the mat with a little weight, and on the moodboard pieces slide and settle. The interface itself never animates in.",
+      "signature": "Saving an image: a scalpel line runs across it and the trimmed offcut drops onto the mat, landing a few degrees off straight.",
+      "sections": [
+        "Landing: one mat, the visitor's tabs fall onto it as offcuts and the count drops to zero; below, three plain sentences and a sign-in",
+        "Library: the mat as the page; thumbnails as offcuts with slightly uneven trimmed edges (cut from each image's own hash, so they never change)",
+        "Image: lying alone on the mat, its print size at 300 dpi along the mat's ruler, palette as cut colour chips",
+        "Moodboard: the mat's grid is the artboard grid; the PDF is the proof"
+      ],
+      "kit": [
+        { "kind": "pin", "id": "lib-an", "depth": "principle", "to": "The interaction comes from what the product is: here, paper on a mat" },
+        { "kind": "pin", "id": "lib-rm-wrillustrations", "depth": "principle", "to": "Images laid on a table at slightly different sizes, not a perfect grid" },
+        { "kind": "pin", "id": "lib-muller", "depth": "reworked", "to": "One bold colour carries the whole brand: mat green instead of safety orange" },
+        { "kind": "pin", "id": "lib-rm-intertapes", "depth": "principle", "to": "The saved images are the spectacle; the mat around them stays plain" },
+        { "kind": "block", "id": "drag-collage", "depth": "base", "to": "Its drag-and-drop becomes the moodboard on the mat, with paper weight instead of a doll" },
+        { "kind": "block", "id": null, "to": "No WebGL, no cursor, no grain: the mat is flat colour and a printed grid" }
+      ],
+      "new": ["Trimmed-edge thumbnails (clip-path from the image hash)", "Scalpel-cut save animation", "Mat ruler showing real print sizes"],
+      "risks": ["A measuring grid is design-tool chrome in the tell list; it's allowed only because a cutting mat really has one, so it stays on the mat surfaces, faint", "Green everywhere could tire in daily use; needs a light mat variant (the grey side of a mat) for long sessions", "Uneven edges must stay subtle or the library looks messy"],
+      "images": [
+        { "src": "/Users/Mia/projects/creative-kit/content/inspo/images/muller-fade.jpg", "caption": "lib-muller: one flat colour carries the whole brand (principle)" },
+        { "src": "/Users/Mia/projects/creative-kit/content/inspo/images/rm-wrillustrations.jpg", "caption": "lib-rm-wrillustrations: work laid on a table, slightly different sizes (principle)" },
+        { "src": "/Users/Mia/projects/creative-kit/content/inspo/images/an-doll.jpg", "caption": "lib-an: the interaction is the product (principle)" }
+      ]
+    },
+    {
+      "label": "B",
+      "name": "Fan deck",
+      "idea": "The library is filed like a Pantone fan deck: by colour first, and the only colour in the interface is the colour of what you saved.",
+      "why": "Offcut's real difference is that it knows every image's colours. Designers already think in fan decks and swatch books, so the colour index becomes the navigation.",
+      "mood": "quiet, white sheet, precise",
+      "colors": { "paper": "#ffffff", "ink": "#111111", "accent": "#e8e8e6", "mist": "#f4f4f3", "muted": "#8b8b88" },
+      "fonts": [
+        { "role": "everything", "family": "ABC Diatype", "standIn": "Geist", "google": "Geist:wght@400;500", "size": "13px", "weight": 500, "tracking": "0", "leading": 1.3, "case": "sentence", "sample": "Everything with this orange · 41 images" },
+        { "role": "values", "family": "ABC Diatype Mono", "standIn": "Geist Mono", "google": "Geist+Mono:wght@400", "size": "13px", "weight": 400, "tracking": "0", "leading": 1.3, "case": "as is", "sample": "#E8412B  232 65 43  0 72 81 9" }
+      ],
+      "motion": "One thing moves: the fan. Choosing a colour fans the chips open around a pivot and the wall of thumbnails re-sorts (Flip), the ones without that colour dropping to a faint grey. Nothing else animates.",
+      "signature": "The fan deck at the top of the library is made from the colours actually in your library, ordered by hue. Fan it open, touch a chip, and your whole library re-files itself by that colour.",
+      "sections": [
+        "Landing: a fan deck made from twelve drawn posters opens across the page; touching a chip sorts the posters below it",
+        "Library: a dense wall of small thumbnails hanging from one top line (ragged bottom), the fan above; all type one size",
+        "Image: the image, and its palette as tall fan-deck chips with HEX, RGB and CMYK printed on each",
+        "Boards and moodboard: white, no frames; feedback as plain counts"
+      ],
+      "kit": [
+        { "kind": "pin", "id": "lib-rm-dia", "depth": "reworked", "to": "The whole library as a wall of small thumbnails; colour instead of DIA's greyscale" },
+        { "kind": "pin", "id": "lib-obys-grid", "depth": "reworked", "to": "Non-matching images drop to a faint grey; one set of thumbnails, re-sorted with Flip" },
+        { "kind": "pin", "id": "lib-and2es-pills", "depth": "principle", "to": "One small size for all type; hierarchy only from black and grey" },
+        { "kind": "pin", "id": "lib-rm-oppen", "depth": "principle", "to": "Thumbnails hang from one top line with a ragged bottom edge" },
+        { "kind": "theme", "id": "porcelain", "depth": "reworked", "to": "Its pure black on white and small type; serif dropped, one grotesk only" },
+        { "kind": "block", "id": null, "to": "No scroll scenes, no WebGL: the fan is the only motion" }
+      ],
+      "new": ["Fan-deck colour index generated from the library's own palettes", "Hue ordering and chip fan animation"],
+      "risks": ["Very quiet: if the fan isn't great, the app reads as plain", "Small type everywhere needs care for accessibility (13px minimum, real contrast)", "An empty library has no colours to fan: needs a first-run state"],
+      "images": [
+        { "src": "/Users/Mia/projects/creative-kit/content/inspo/images/rm-dia.jpg", "caption": "lib-rm-dia: the archive as a wall of thumbnails (reworked: in colour)" },
+        { "src": "/Users/Mia/projects/creative-kit/content/inspo/images/obys-grid.jpg", "caption": "lib-obys-grid: faint tiles, one set of thumbnails in several layouts" },
+        { "src": "/Users/Mia/projects/creative-kit/content/inspo/images/and2es-pills.jpg", "caption": "lib-and2es-pills: one tiny size, hierarchy from fill" },
+        { "src": "/Users/Mia/projects/creative-kit/content/inspo/images/rm-oppen.jpg", "caption": "lib-rm-oppen: hang everything from one line" }
+      ]
+    },
+    {
+      "label": "C",
+      "name": "Poster column",
+      "idea": "Offcut is a Zagreb advertising column: a round green pillar where every poster you saved is pasted over the last.",
+      "why": "It's from your friend's city and from what graphic designers love most in it: street posters, layered and torn. The column turns, so your library is something you walk around.",
+      "mood": "loud, street, pasted paper",
+      "colors": { "paper": "#e9e6df", "ink": "#121212", "accent": "#f7d117", "mist": "#d6d2c8", "muted": "#6f6b62" },
+      "fonts": [
+        { "role": "display", "family": "ABC Gravity Condensed", "standIn": "Big Shoulders Display", "google": "Big+Shoulders+Display:wght@800", "size": "120px", "weight": 800, "tracking": "-0.01em", "leading": 0.85, "case": "uppercase", "sample": "PASTE IT UP" },
+        { "role": "text", "family": "ABC Arizona Text", "standIn": "Newsreader", "google": "Newsreader:opsz,wght@6..72,400", "size": "17px", "weight": 400, "tracking": "0", "leading": 1.4, "case": "sentence", "sample": "Kept from Ilica, a gig poster half covered by the next one." }
+      ],
+      "motion": "The column turns slowly; drag pushes it, hover slows it down. In the app, presentation mode opens by turning the column to the image. Everything else is still.",
+      "signature": "The landing page and every board's presentation open on a column of that board's images, pasted edge to edge in overlapping layers, turning in the middle of the screen.",
+      "sections": [
+        "Landing: the column, with drawn posters pasted on it; a condensed headline on a pasted strip; plain text below",
+        "Library: images pasted edge to edge with no gaps, like a hoarding; captions in the serif",
+        "Boards: each board has its own small column as its cover",
+        "Presentation: the column turns to each image, then it fills the screen"
+      ],
+      "kit": [
+        { "kind": "pin", "id": "lib-k95", "depth": "reworked", "to": "Images around a turning 3D object; rings become a cylinder of pasted posters" },
+        { "kind": "pin", "id": "lib-k95-hover", "depth": "base", "to": "Hover slows the whole column so a poster can be read" },
+        { "kind": "pin", "id": "lib-gn-sphere", "depth": "reworked", "to": "The caption slides up at the bottom centre: title in the serif, designer beside it" },
+        { "kind": "pin", "id": "lib-rm-joiijima", "depth": "principle", "to": "Tall posters are the loud thing; everything else whispers" },
+        { "kind": "block", "id": "orbit-gallery", "depth": "base", "to": "Its spiral and cone shapes become a cylinder with overlapping, slightly rotated layers" }
+      ],
+      "new": ["Cylinder shape with layered pasting for orbit-gallery", "Pasted-edge library layout"],
+      "risks": ["A 3D signature risks the 'every site is a toy' tell, so it stays on the landing page and the presentation intro only", "WebGL weight on phones", "Condensed caps headline is close to the kit's default hero; it has to be on a pasted strip, never floating"],
+      "images": [
+        { "src": "/Users/Mia/projects/creative-kit/content/inspo/images/k95-hero.jpg", "caption": "lib-k95: images around a turning object (reworked into a column)" },
+        { "src": "/Users/Mia/projects/creative-kit/content/inspo/images/rm-joiijima.jpg", "caption": "lib-rm-joiijima: posters loud, interface quiet" },
+        { "src": "/Users/Mia/projects/creative-kit/content/inspo/images/gn-sphere.jpg", "caption": "lib-gn-sphere: caption at the bottom centre" }
+      ]
+    }
+  ]
+}

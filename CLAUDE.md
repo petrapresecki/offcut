@@ -17,8 +17,9 @@ Next.js 15 App Router on Cloudflare Workers via `@opennextjs/cloudflare`. D1 (SQ
 - R2 keys are `<userId>/<itemId>/original.<ext>` and `thumb.jpg`; `/api/img/[...key]` only serves keys under the signed-in user's id
 - Every query is scoped by `userId`. Server actions call `requireUser()` first
 - Only hashes of sign-in tokens and session ids are stored
-- Styling: tokens in `src/app/globals.css` (`paper sheet ink muted line accent danger`), `.label` for mono uppercase metadata, `.wordmark`, `.crop-marks` for the corner-mark motif. Images bring the colour; the interface stays paper and ink with one fluorescent pink accent
-- Fonts: Archivo (variable width, used wide for display) and IBM Plex Mono
+- Design rules live in `concept/DESIGN.md` (learned from Ohno, Collletttivo, Uncut, Displaay, 205TF and others). Short version: one family small (Ronzino 400/500, 15px body, 13px grey meta via `.label`), `.title` for page titles with a `<sup>` count, Sprat (`.display`, or `CutWordmark`) only for the one loud thing per screen, Necto Mono (`font-mono`) only for colour values. Paper/ink tokens, links and actions in plain blue (`.link`), one control shape (`.field` / `rounded-kit`). No uppercase tracked labels, no crop marks, no shadows, no fade-ups
+- Fonts are self-hosted from `src/app/fonts` (Collletttivo, OFL; licences next to them). Sprat's axes are non-standard: `wdth` 100–200 (100 = condensed) and `wght` 10–200, so set it with `font-variation-settings`, not font-weight/font-stretch
+- The landing page's split-fountain field is `.fountain` + `FountainField`; the wordmark is `CutWordmark`
 - Filters (`q`, `color`, `category`, `tag`) live in the URL and run in the browser over the loaded cards (`src/lib/filter.ts`). Fine for libraries up to a few thousand images; move to SQL if that changes
 - Boards live under `/library/boards`; uploads from a board page are added to that board
 - Landing page: `src/components/landing/`. GSAP via `src/lib/gsap.ts` (plugins registered once); every animation sits inside `gsap.matchMedia()` with `MOTION_OK`, so reduced motion gets the finished layout. Posters are generated SVGs (`posters.tsx`), never other people's work

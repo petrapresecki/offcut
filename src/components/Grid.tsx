@@ -59,14 +59,14 @@ type CardProps = {
 export function ItemCard({ item, href, selecting, selected, onToggle, badge }: CardProps) {
   const image = (
     <>
-      <div className="relative overflow-hidden" style={{ aspectRatio: `${item.width} / ${item.height}`, background: item.palette[0]?.hex }}>
+      <div className="relative overflow-hidden rounded-kit" style={{ aspectRatio: `${item.width} / ${item.height}`, background: item.palette[0]?.hex }}>
         {/* eslint-disable-next-line @next/next/no-img-element -- served from R2; next/image can't optimise on Workers */}
         <img
           src={item.thumbUrl}
           alt={item.title ?? ""}
           loading="lazy"
           decoding="async"
-          className={`h-full w-full object-cover transition duration-700 ease-out-expo group-hover:scale-[1.02] ${selected ? "scale-[0.94]" : ""}`}
+          className={`h-full w-full object-cover transition duration-500 ease-out-expo ${selected ? "scale-[0.94] rounded-kit" : ""}`}
         />
         {badge && (
           <span className="label absolute right-2 bottom-2 flex gap-2 bg-ink/85 px-2 py-1 text-paper" aria-label={`${badge.up} yes, ${badge.down} no, ${badge.notes} notes`}>
@@ -86,10 +86,17 @@ export function ItemCard({ item, href, selecting, selected, onToggle, badge }: C
           </span>
         )}
       </div>
-      <div className="mt-2 flex h-2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-        {item.palette.map((s) => (
-          <span key={s.hex} style={{ background: s.hex, flexGrow: Math.max(s.weight, 0.05) }} />
-        ))}
+      {/* Captioned like an archive: what it is, then who made it. */}
+      <div className="mt-2 flex items-baseline justify-between gap-3 text-[13px] leading-tight">
+        <span className="min-w-0 truncate">
+          {item.title ?? <span className="text-muted">Untitled</span>}
+          {item.credit && <span className="text-muted"> · {item.credit}</span>}
+        </span>
+        <span className="flex shrink-0 gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" aria-hidden>
+          {item.palette.slice(0, 4).map((s, i) => (
+            <span key={i} className="size-2 rounded-full" style={{ background: s.hex, boxShadow: "inset 0 0 0 1px var(--line)" }} />
+          ))}
+        </span>
       </div>
     </>
   );
@@ -103,12 +110,12 @@ export function ItemCard({ item, href, selecting, selected, onToggle, badge }: C
           aria-pressed={selected}
           aria-label={`Select ${item.title ?? "image"}`}
           data-active={selected}
-          className="crop-marks group block w-full text-left"
+          className="group block w-full text-left"
         >
           {image}
         </button>
       ) : (
-        <Link href={href} className="crop-marks group block" aria-label={item.title ?? "Open image"}>
+        <Link href={href} className="group block" aria-label={item.title ?? "Open image"}>
           {image}
         </Link>
       )}

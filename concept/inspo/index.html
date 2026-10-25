@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offcut inspiration picks</title>
+<style>
+  :root { --paper: #f4f3ef; --ink: #121212; --muted: #6b6a66; --line: #d9d7d0; --on: #121212; }
+  @media (prefers-color-scheme: dark) { :root { --paper: #141413; --ink: #eeece6; --muted: #9a9890; --line: #2e2d2a; --on: #eeece6; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; padding: 28px 20px 120px; }
+  header { max-width: 760px; margin-bottom: 36px; }
+  h1 { font-size: 28px; margin: 0 0 8px; letter-spacing: -.01em; }
+  header p { margin: 0; color: var(--muted); }
+  h2 { font-size: 18px; margin: 48px 0 16px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 28px 20px; }
+  article { display: flex; flex-direction: column; gap: 10px; }
+  .shots { display: grid; grid-template-columns: 3fr 1fr; gap: 6px; }
+  .shots img { width: 100%; display: block; border: 1px solid var(--line); cursor: zoom-in; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
+  .shots.one { grid-template-columns: 1fr; }
+  .head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  .head strong { font-size: 17px; }
+  .head a { color: var(--muted); font-size: 13px; word-break: break-all; }
+  .why { margin: 0; color: var(--muted); font-size: 14px; }
+  .likes { display: flex; flex-wrap: wrap; gap: 6px; }
+  .likes label { border: 1px solid var(--line); padding: 4px 10px; font-size: 13px; cursor: pointer; user-select: none; }
+  .likes input { position: absolute; opacity: 0; pointer-events: none; }
+  .likes label:has(input:checked) { background: var(--on); color: var(--paper); border-color: var(--on); }
+  .likes label:has(input:focus-visible) { outline: 2px solid #3a6df0; outline-offset: 2px; }
+  textarea { width: 100%; font: inherit; font-size: 14px; color: inherit; background: transparent; border: 1px solid var(--line); padding: 6px 8px; resize: vertical; min-height: 2.4em; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--ink); color: var(--paper); padding: 12px 20px; display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .bar button { font: 600 14px inherit; background: var(--paper); color: var(--ink); border: 0; padding: 8px 14px; cursor: pointer; }
+  dialog { padding: 0; border: 0; max-width: 96vw; background: transparent; }
+  dialog img { max-width: 96vw; max-height: 92vh; display: block; }
+  dialog::backdrop { background: rgb(0 0 0 / .8); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sites for Offcut</h1>
+  <p>Eight live sites with bold type, colour or gradients, four apps that do what Offcut does, and four pins from your kit. Tick what you like on each one, add a note if you want, then press “Copy my picks” and paste it to me. Click a screenshot to see it big.</p>
+</header>
+
+<h2>Bold type, colour and gradients</h2>
+<div class="grid" id="bold"></div>
+
+<h2>Apps that do what Offcut does</h2>
+<div class="grid" id="apps"></div>
+
+<h2>Already in your kit</h2>
+<div class="grid" id="kit"></div>
+
+<div class="bar">
+  <span id="summary">Nothing picked yet.</span>
+  <button id="copy">Copy my picks</button>
+</div>
+<dialog id="zoom"><img alt=""></dialog>
+
+<script>
+const SITES = {
+  bold: [
+    ["ohno", "Ohno Type Co", "https://ohnotype.co", "A type foundry where every specimen is a mini poster: black and white, wildly different faces side by side, tiny serif-y nav."],
+    ["collletttivo", "Collletttivo", "https://www.collletttivo.it", "One giant cropped letter on flat orange as the hero, a tidy list of fonts beside it."],
+    ["uncut", "Uncut", "https://uncut.wtf", "A huge custom wordmark on grey, then plain rounded rows with counts. Loud logo, quiet interface."],
+    ["displaay", "Displaay", "https://displaay.net", "Tab-like pill nav, real photos of printed type objects, a bright yellow cookie box."],
+    ["205tf", "205TF", "https://www.205.tf", "Each typeface as a full black slide with the name huge in its own face."],
+    ["koto", "Koto", "https://koto.studio", "Dark studio site with a holographic gradient band and calm grey text."],
+    ["basement", "basement.studio", "https://basement.studio", "Your job target: black, big statement type, a 3D hero and a client logo grid."],
+    ["teenage", "teenage engineering", "https://teenage.engineering", "Product photography on black, a nav made of tiny icons and labels, a yellow warning-sign cookie banner."],
+  ],
+  apps: [
+    ["mymind", "mymind", "https://mymind.com", "A saving app with a warm orange-to-pink gradient glow, a big serif headline and coloured tag pills."],
+    ["cosmos", "Cosmos", "https://www.cosmos.so", "A saving app for creatives: saved things float around a big centred search."],
+    ["savee", "Savee", "https://savee.com", "Inspiration for designers: big bold headline with little app icons inline, then a strip of images."],
+    ["arena", "Are.na", "https://www.are.na", "Almost no design at all: plain text, a numbered list, one blue button. Calm and honest."],
+  ],
+  kit: [
+    ["horst", "Horst Arts & Music", "https://www.horstartsandmusic.com", "lib-horst: flat colour blocks, one grotesk at one weight, black type on the colour.", "kit/horst-blocks.jpg"],
+    ["gass", "GASS Records", "https://www.gass.zone", "lib-gass-color: pure red and forest green with lilac, powder blue and peach bands.", "kit/gass-color.jpg"],
+    ["ryanconner", "Ryan Garret Conner", "https://ryangarretconner.com", "lib-rm-ryanconner: one screen of IBM blue, three typefaces clashing on purpose.", "kit/rm-ryanconner.jpg"],
+    ["muller", "helloMuller", "https://www.hellomuller.com/projects.html", "lib-muller: the orange catalogue the prototype was based on.", "kit/muller-fade.jpg"],
+  ],
+};
+const ASPECTS = ["Typography", "Colours", "Background", "Layout", "Images", "Motion", "Nav", "Overall vibe"];
+const KEY = "offcut-picks";
+let picks = {};
+try { picks = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(picks)); } catch {} summary(); };
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+for (const [group, list] of Object.entries(SITES)) {
+  document.getElementById(group).innerHTML = list.map(([id, name, url, why, img]) => {
+    const p = picks[id] || { likes: [], note: "" };
+    const shots = img
+      ? `<div class="shots one"><img src="${img}" alt="${esc(name)} screenshot" loading="lazy"></div>`
+      : `<div class="shots"><img src="shots/${id}-1.jpg" alt="${esc(name)}, top of the page" loading="lazy"><img src="shots/${id}-2.jpg" alt="${esc(name)}, scrolled" loading="lazy"></div>`;
+    return `<article data-id="${id}" data-name="${esc(name)}" data-url="${url}">
+      ${shots}
+      <div class="head"><strong>${esc(name)}</strong><a href="${url}" target="_blank" rel="noopener">${url.replace(/^https?:\/\/(www\.)?/, "")} ↗</a></div>
+      <p class="why">${esc(why)}</p>
+      <div class="likes" role="group" aria-label="What you like on ${esc(name)}">
+        ${ASPECTS.map(a => `<label><input type="checkbox" value="${a}" ${p.likes.includes(a) ? "checked" : ""}>${a}</label>`).join("")}
+      </div>
+      <textarea rows="1" placeholder="Anything specific? (optional)" aria-label="Note on ${esc(name)}">${esc(p.note)}</textarea>
+    </article>`;
+  }).join("");
+}
+
+document.addEventListener("change", e => {
+  const art = e.target.closest("article"); if (!art || e.target.type !== "checkbox") return;
+  const likes = [...art.querySelectorAll("input:checked")].map(i => i.value);
+  picks[art.dataset.id] = { ...(picks[art.dataset.id] || { note: "" }), likes };
+  save();
+});
+document.addEventListener("input", e => {
+  const art = e.target.closest("article"); if (!art || e.target.tagName !== "TEXTAREA") return;
+  picks[art.dataset.id] = { ...(picks[art.dataset.id] || { likes: [] }), note: e.target.value };
+  save();
+});
+
+function text() {
+  return [...document.querySelectorAll("article")].flatMap(a => {
+    const p = picks[a.dataset.id]; if (!p || (!p.likes.length && !p.note.trim())) return [];
+    return [`- ${a.dataset.name} (${a.dataset.url}): ${p.likes.join(", ") || "—"}${p.note.trim() ? ` — “${p.note.trim()}”` : ""}`];
+  }).join("\n");
+}
+function summary() {
+  const n = text().split("\n").filter(Boolean).length;
+  document.getElementById("summary").textContent = n ? `${n} ${n === 1 ? "site" : "sites"} picked.` : "Nothing picked yet.";
+}
+summary();
+document.getElementById("copy").onclick = async () => {
+  const t = text() || "Nothing picked yet.";
+  try { await navigator.clipboard.writeText("What I like:\n" + t); document.getElementById("copy").textContent = "Copied, paste it to Claude"; }
+  catch { prompt("Copy this:", t); }
+};
+
+const zoom = document.getElementById("zoom");
+document.addEventListener("click", e => {
+  if (e.target.matches(".shots img")) { zoom.querySelector("img").src = e.target.src; zoom.showModal(); }
+  else if (e.target.closest("dialog")) zoom.close();
+});
+</script>
+</body>
+</html>

@@ -46,3 +46,9 @@ next-env.d.ts
 .dev.vars*
 !.dev.vars.example
 cloudflare-env.d.ts
+
+# design research: screenshots of other sites and font test files stay local
+concept/inspo/shots
+concept/inspo/kit
+concept/board
+concept/fonts

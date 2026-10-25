@@ -40,15 +40,14 @@ export function BoardHeading({ board, shareToken, comments, voters }: Props) {
           onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
           aria-label="Board name"
           size={Math.max(name.length, 6)}
-          className="max-w-full bg-transparent text-3xl leading-none font-semibold tracking-tight outline-none focus-visible:underline focus-visible:decoration-accent focus-visible:outline-none"
-          style={{ fontStretch: "112%" }}
+          className="title max-w-full bg-transparent outline-none focus-visible:underline focus-visible:decoration-accent focus-visible:outline-none"
         />
       </h1>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <Link href={`/library/boards/${board.slug}/moodboard`} className="label bg-accent px-2.5 py-1 text-accent-ink">
+        <Link href={`/library/boards/${board.slug}/moodboard`} className="label rounded-kit bg-ink px-2.5 py-1 text-paper">
           Open moodboard →
         </Link>
-        <Link href={`/library/boards/${board.slug}/present`} className="label border border-ink px-2.5 py-1">
+        <Link href={`/library/boards/${board.slug}/present`} className="label field px text-ink-2.5 py-1">
           Present
         </Link>
         <ShareControl boardId={board.id} initialToken={shareToken} />
@@ -95,7 +94,7 @@ function ShareControl({ boardId, initialToken }: { boardId: string; initialToken
             if ("token" in res && res.token) setToken(res.token);
           })
         }
-        className="label border border-line px-2.5 py-1 text-muted hover:text-ink"
+        className="label field px-2.5 py-1 text-muted hover:text-ink"
       >
         {pending ? "Making a link…" : "Share with a client"}
       </button>
@@ -114,7 +113,7 @@ function ShareControl({ boardId, initialToken }: { boardId: string; initialToken
           setCopied(true);
           setTimeout(() => setCopied(false), 1500);
         }}
-        className="label border border-line px-2.5 py-1 hover:border-ink"
+        className="label field px-2.5 py-1 hover:border-ink"
         title={url ?? undefined}
       >
         {copied ? "Copied" : "Copy link"}
@@ -151,10 +150,10 @@ function FeedbackPanel({ comments, voters }: { comments: Comment[]; voters: numb
   const [list, setList] = useState(comments);
   const [, startTransition] = useTransition();
   return (
-    <div className="max-w-2xl border border-line bg-sheet">
+    <div className="max-w-2xl field">
       <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex w-full items-center justify-between gap-4 px-3 py-2 text-left">
         <span className="text-sm">
-          <strong className="font-semibold">Client feedback</strong>
+          <strong className="font-medium">Client feedback</strong>
           <span className="text-muted">
             {" "}· {voters} {voters === 1 ? "person voted" : "people voted"} · {list.length} {list.length === 1 ? "note" : "notes"}
           </span>

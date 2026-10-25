@@ -10,10 +10,10 @@ export function SignInForm() {
     return (
       <div className="space-y-4">
         <p>
-          Check your inbox. We sent a link to <strong className="font-semibold">{state.email}</strong>.
+          Check your inbox. We sent a link to <strong className="font-medium">{state.email}</strong>.
         </p>
         {state.devLink && (
-          <a href={state.devLink} className="label inline-block bg-accent px-3 py-2 text-accent-ink">
+          <a href={state.devLink} className="link label inline-block">
             Dev only: open the link →
           </a>
         )}
@@ -40,7 +40,7 @@ export function SignInForm() {
       <button
         type="submit"
         disabled={pending}
-        className="mt-4 w-full bg-ink py-3 font-medium text-paper transition-opacity disabled:opacity-60"
+        className="mt-4 w-full rounded-kit bg-ink py-3 font-medium text-paper transition-opacity disabled:opacity-60"
       >
         {pending ? "Sending…" : "Email me a link"}
       </button>

@@ -115,7 +115,7 @@ export function ItemDetail({ item, tags, allTags, boards, onBoards, prevId, next
         <Palette palette={item.palette} />
 
         <section className="space-y-5" aria-label="Details">
-          <input value={fields.title} onChange={set("title")} onBlur={() => save()} placeholder="Untitled" aria-label="Title" className={`${field} text-2xl font-semibold tracking-tight`} />
+          <input value={fields.title} onChange={set("title")} onBlur={() => save()} placeholder="Untitled" aria-label="Title" className={`${field} title`} />
           <label className="block space-y-1">
             <span className="label text-muted">Why I saved it</span>
             <textarea value={fields.note} onChange={set("note")} onBlur={() => save()} rows={3} placeholder="The kerning on the headline, the grain…" className={`${field} resize-y`} />
@@ -212,7 +212,7 @@ function Palette({ palette }: { palette: Swatch[] }) {
               key={f}
               aria-pressed={format === f}
               onClick={() => setFormat(f)}
-              className="label px-2 py-0.5 text-muted aria-pressed:bg-ink aria-pressed:text-paper"
+              className="label rounded-kit px-2 py-0.5 text-muted aria-pressed:bg-ink aria-pressed:text-paper"
             >
               {f}
             </button>
@@ -230,18 +230,18 @@ function Palette({ palette }: { palette: Swatch[] }) {
               transition={{ delay: i * 0.05, ease: [0.16, 1, 0.3, 1], duration: 0.5 }}
             >
               {/* Styled like a paint chip: colour on top, a paper strip with the value below. */}
-              <button onClick={() => copy(s.hex)} className="group block w-full text-left" aria-label={`Copy ${formatSwatch(s.hex, format)}`}>
+              <button onClick={() => copy(s.hex)} className="group block w-full overflow-hidden rounded-kit text-left" aria-label={`Copy ${formatSwatch(s.hex, format)}`}>
                 <span className="relative block aspect-[4/3]" style={{ background: s.hex }}>
                   <span className={`label absolute right-1.5 bottom-1.5 opacity-0 transition-opacity group-hover:opacity-100 ${dark ? "text-white" : "text-black"}`}>
                     {copied === s.hex ? "Copied" : "Copy"}
                   </span>
                 </span>
-                <span className="label block border-x border-b border-line bg-sheet px-1.5 py-1 text-ink">
+                <span className="block bg-field px-2 py-1.5 font-mono text-[12px] text-ink">
                   {formatSwatch(s.hex, format)}
                 </span>
               </button>
-              <Link href={`/library?color=${s.hex.slice(1)}`} className="label mt-1 block text-muted hover:text-ink">
-                Find colour →
+              <Link href={`/library?color=${s.hex.slice(1)}`} className="link label mt-1.5 block">
+                Find colour
               </Link>
             </motion.li>
           );
@@ -275,7 +275,7 @@ function Tags({ itemId, initial, suggestions }: { itemId: string; initial: strin
       <span className="label block text-muted" id={`${listId}-label`}>Tags</span>
       <ul className="flex flex-wrap gap-1.5" aria-labelledby={`${listId}-label`}>
         {tags.map((t) => (
-          <li key={t} className="flex items-center border border-line bg-sheet">
+          <li key={t} className="field flex items-center">
             <Link href={`/library?tag=${encodeURIComponent(t)}`} className="py-0.5 pl-2 text-sm hover:underline">
               #{t}
             </Link>
@@ -353,7 +353,7 @@ function Boards({ itemId, boards, initial }: { itemId: string; boards: BoardRef[
             key={b.id}
             aria-pressed={on.has(b.id)}
             onClick={() => toggle(b.id)}
-            className="border border-line px-2.5 py-1 text-sm transition-colors hover:border-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper"
+            className="field px-2.5 py-1 text-sm transition-colors hover:border-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper"
           >
             {on.has(b.id) ? "✓ " : "+ "}
             {b.name}
@@ -376,12 +376,12 @@ function Boards({ itemId, boards, initial }: { itemId: string; boards: BoardRef[
               aria-label="New board name"
               className="border-b border-ink bg-transparent py-1 text-sm outline-none focus-visible:outline-none"
             />
-            <button disabled={!name.trim() || pending} className="label bg-ink px-2 py-1 text-paper disabled:opacity-50">
+            <button disabled={!name.trim() || pending} className="label rounded-kit bg-ink px-2 py-1 text-paper disabled:opacity-50">
               Create
             </button>
           </form>
         ) : (
-          <button onClick={() => setNaming(true)} className="label border border-dashed border-line px-2.5 py-1.5 text-muted hover:text-ink">
+          <button onClick={() => setNaming(true)} className="label field px-2.5 py-1.5 text-muted hover:text-ink">
             New board
           </button>
         )}

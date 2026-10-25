@@ -13,7 +13,7 @@ export function NewBoard() {
 
   if (!naming)
     return (
-      <button onClick={() => setNaming(true)} className="bg-ink px-4 py-2 font-medium text-paper">
+      <button onClick={() => setNaming(true)} className="rounded-kit bg-ink px-4 py-2 font-medium text-paper">
         New board
       </button>
     );
@@ -39,7 +39,7 @@ export function NewBoard() {
         aria-label="Board name"
         className="border-b border-ink bg-transparent py-2 outline-none focus-visible:outline-none"
       />
-      <button disabled={!name.trim() || pending} className="bg-ink px-4 py-2 font-medium text-paper disabled:opacity-50">
+      <button disabled={!name.trim() || pending} className="rounded-kit bg-ink px-4 py-2 font-medium text-paper disabled:opacity-50">
         {pending ? "Creating…" : "Create"}
       </button>
       {error && <p className="w-full text-sm text-danger">{error}</p>}

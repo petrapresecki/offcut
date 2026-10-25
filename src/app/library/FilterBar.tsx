@@ -12,7 +12,7 @@ type Props = {
 };
 
 const chip =
-  "label border border-line px-2.5 py-1 text-muted transition-colors hover:text-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper";
+  "label field px-2.5 py-1 text-muted transition-colors hover:text-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper";
 
 export function FilterBar({ filters, onChange, categories, tags }: Props) {
   const search = useRef<HTMLInputElement>(null);
@@ -45,7 +45,7 @@ export function FilterBar({ filters, onChange, categories, tags }: Props) {
             placeholder="Search notes, titles, credits, #tags"
             className="w-full bg-transparent py-2 outline-none placeholder:text-muted/70 focus-visible:outline-none"
           />
-          <kbd className="label border border-line px-1.5 text-muted">/</kbd>
+          <kbd className="label field px-1.5 text-muted">/</kbd>
         </label>
 
         <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter by colour">

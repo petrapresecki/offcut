@@ -172,15 +172,15 @@ export function Library({ items, boards, board, heading, empty, badges }: Props)
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           {heading}
-          <p className="label mt-2 text-muted" aria-live="polite">
-            {filtered ? `${shown.length} of ${items.length}` : items.length} {items.length === 1 ? "image" : "images"}
+          <p className="label mt-2 h-4 text-muted" aria-live="polite">
+            {filtered ? `Showing ${shown.length} of ${items.length}` : ""}
           </p>
         </div>
         <div className="flex items-center gap-3">
           {items.length > 0 && (
             <button
               onClick={() => (selecting ? stopSelecting() : setSelecting(true))}
-              className="label border border-line px-3 py-2 text-muted hover:text-ink"
+              className="label field px-3 py-2 text-muted hover:text-ink"
             >
               {selecting ? "Done" : "Select"}
             </button>
@@ -188,7 +188,7 @@ export function Library({ items, boards, board, heading, empty, badges }: Props)
           <span className="label hidden text-muted lg:inline">Drop, paste ⌘V, or</span>
           <button
             onClick={() => fileInput.current?.click()}
-            className="bg-ink px-4 py-2 font-medium text-paper transition-transform active:scale-95"
+            className="rounded-kit bg-ink px-4 py-2 font-medium text-paper transition-transform active:scale-95"
           >
             Add images
           </button>
@@ -209,10 +209,10 @@ export function Library({ items, boards, board, heading, empty, badges }: Props)
       {items.length > 0 && <FilterBar filters={filters} onChange={changeFilters} categories={categories} tags={tags} />}
 
       {items.length === 0 && uploads.length === 0 ? (
-        <div className="crop-marks grid min-h-[60vh] place-items-center border border-dashed border-line p-8 text-center [--marks-opacity:1]">
+        <div className="crop-marks grid min-h-[60vh] place-items-center field p-8 text-center [--marks-opacity:1]">
           <div className="max-w-md space-y-4">
             {empty}
-            <button onClick={() => fileInput.current?.click()} className="bg-ink px-4 py-2 font-medium text-paper">
+            <button onClick={() => fileInput.current?.click()} className="rounded-kit bg-ink px-4 py-2 font-medium text-paper">
               Choose images
             </button>
           </div>
@@ -220,7 +220,7 @@ export function Library({ items, boards, board, heading, empty, badges }: Props)
       ) : shown.length === 0 && uploads.length === 0 ? (
         <div className="grid min-h-[40vh] place-items-center text-center">
           <div className="space-y-3">
-            <p className="text-xl font-semibold">Nothing matches.</p>
+            <p className="text-xl font-medium">Nothing matches.</p>
             <button onClick={() => changeFilters({ q: "", color: null, category: null, tag: null })} className="label text-muted underline underline-offset-2 hover:text-ink">
               Clear filters
             </button>
@@ -286,7 +286,7 @@ export function Library({ items, boards, board, heading, empty, badges }: Props)
             className="pointer-events-none fixed inset-0 z-50 grid place-items-center bg-paper/80 p-6 backdrop-blur-sm"
           >
             <motion.div initial={{ scale: 0.96 }} animate={{ scale: 1 }} className="crop-marks grid h-full w-full place-items-center border border-dashed border-ink [--marks-opacity:1]">
-              <p className="text-center text-4xl font-semibold tracking-tight" style={{ fontStretch: "125%" }}>
+              <p className="display text-center text-[clamp(3.5rem,9vw,8rem)]">
                 {board ? `Drop to save to ${board.name}` : "Drop to save"}
               </p>
             </motion.div>
@@ -362,7 +362,7 @@ function SelectionBar({
               placeholder="Board name"
               className="border-b border-paper/40 bg-transparent py-1 outline-none placeholder:text-paper/50 focus-visible:border-paper focus-visible:outline-none"
             />
-            <button disabled={!name.trim() || !count || pending} className="label bg-accent px-3 py-1.5 text-accent-ink disabled:opacity-50">
+            <button disabled={!name.trim() || !count || pending} className="label rounded-kit bg-paper px-3 py-1.5 text-ink disabled:opacity-50">
               Create & add
             </button>
           </form>
@@ -373,7 +373,7 @@ function SelectionBar({
                 disabled={!count || pending}
                 value=""
                 onChange={(e) => e.target.value && addTo(e.target.value)}
-                className="label border border-paper/30 bg-ink px-2 py-1.5 text-paper disabled:opacity-50"
+                className="label border border-paper/30 rounded-kit bg-ink px-2 py-1.5 text-paper disabled:opacity-50"
                 aria-label="Add selected images to a board"
               >
                 <option value="">Add to board…</option>
@@ -389,7 +389,7 @@ function SelectionBar({
                 Remove from board
               </button>
             )}
-            <button disabled={!count || pending} onClick={() => setNaming(true)} className="label bg-accent px-3 py-1.5 text-accent-ink disabled:opacity-50">
+            <button disabled={!count || pending} onClick={() => setNaming(true)} className="label rounded-kit bg-paper px-3 py-1.5 text-ink disabled:opacity-50">
               New board
             </button>
           </>
@@ -437,11 +437,11 @@ function UploadCard({
             </p>
             <div className="flex flex-wrap gap-2">
               {onUseExisting && (
-                <button onClick={onUseExisting} className="label bg-ink px-2 py-1 text-paper">
+                <button onClick={onUseExisting} className="label rounded-kit bg-ink px-2 py-1 text-paper">
                   Add that one to {boardName}
                 </button>
               )}
-              <button onClick={onKeep} className="label border border-ink px-2 py-1">Save anyway</button>
+              <button onClick={onKeep} className="label field px text-ink-2 py-1">Save anyway</button>
               <button onClick={onDismiss} className="label px-2 py-1 text-muted hover:text-ink">Skip</button>
             </div>
           </div>

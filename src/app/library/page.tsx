@@ -14,13 +14,13 @@ export default async function LibraryPage() {
       items={items}
       boards={boards.map(({ id, name, slug }) => ({ id, name, slug }))}
       heading={
-        <h1 className="text-3xl leading-none font-semibold tracking-tight" style={{ fontStretch: "112%" }}>
-          Library
+        <h1 className="title">
+          Library<sup>{items.length}</sup>
         </h1>
       }
       empty={
         <>
-          <p className="text-3xl leading-tight font-semibold tracking-tight" style={{ fontStretch: "112%" }}>
+          <p className="title">
             Your offcuts go here.
           </p>
           <p className="text-muted">

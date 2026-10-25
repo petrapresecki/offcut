@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Wordmark } from "@/components/Wordmark";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Masonry } from "@/components/Grid";
@@ -99,11 +99,8 @@ export function SharedBoard({ token, board, ownerName, items, feedback }: Props)
   return (
     <div className="min-h-dvh">
       <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-line bg-paper/90 px-4 py-3 backdrop-blur sm:px-6">
-        <Link href="/" className="wordmark inline-flex items-center gap-2 text-base">
-          <span aria-hidden className="inline-block size-2.5 bg-accent" />
-          offcut
-        </Link>
-        <button onClick={() => setPresenting(0)} disabled={!items.length} className="bg-ink px-3 py-1.5 text-sm font-medium text-paper disabled:opacity-50">
+        <Wordmark />
+        <button onClick={() => setPresenting(0)} disabled={!items.length} className="rounded-kit bg-ink px-3 py-1.5 text-sm font-medium text-paper disabled:opacity-50">
           Present
         </button>
       </header>
@@ -111,7 +108,7 @@ export function SharedBoard({ token, board, ownerName, items, feedback }: Props)
       <main className="px-4 pt-8 pb-24 sm:px-6">
         <div className="mb-8 max-w-2xl space-y-3">
           <p className="label text-muted">{ownerName ? `Shared by ${ownerName}` : "Shared board"} · {items.length} images</p>
-          <h1 className="text-[clamp(2rem,6vw,4rem)] leading-none font-semibold tracking-tight" style={{ fontStretch: "112%" }}>
+          <h1 className="display text-[clamp(3.5rem,11vw,9.5rem)]">
             {board.name}
           </h1>
           <p className="text-muted">Give each image a 👍 or 👎 and leave a note on anything. No account needed.</p>
@@ -124,7 +121,7 @@ export function SharedBoard({ token, board, ownerName, items, feedback }: Props)
         )}
 
         {hasBoard && (
-          <button onClick={() => setPresenting(0)} className="crop-marks mb-10 block w-full max-w-4xl text-left" aria-label="Open the moodboard">
+          <button onClick={() => setPresenting(0)} className="mb-10 block w-full max-w-4xl text-left" aria-label="Open the moodboard">
             <MoodboardPreview items={items} format={board.format} bg={board.bg} />
           </button>
         )}
@@ -268,7 +265,7 @@ function SharedCard({ item, tally, comments, visitorKey, onOpen, onVote, onComme
                   aria-label="Your note"
                   className="min-w-0 flex-1 border-b border-line bg-transparent py-1 text-sm outline-none focus-visible:border-ink focus-visible:outline-none"
                 />
-                <button disabled={pending || !draft.trim()} className="label bg-ink px-2 py-1 text-paper disabled:opacity-40">
+                <button disabled={pending || !draft.trim()} className="label rounded-kit bg-ink px-2 py-1 text-paper disabled:opacity-40">
                   Post
                 </button>
               </form>
@@ -284,7 +281,7 @@ function MoodboardPreview({ items, format, bg }: { items: CanvasItem[]; format: 
   const placed = useMemo(() => items.filter((i) => i.placement).sort((a, b) => a.placement!.z - b.placement!.z), [items]);
   const h = artboardHeight(format);
   return (
-    <div className="relative w-full overflow-hidden shadow-[0_30px_60px_-30px_rgb(0_0_0/0.5)]" style={{ aspectRatio: `${ARTBOARD_WIDTH} / ${h}`, background: bg }}>
+    <div className="relative w-full overflow-hidden rounded-kit" style={{ aspectRatio: `${ARTBOARD_WIDTH} / ${h}`, background: bg }}>
       {placed.map((i) => {
         const p = i.placement!;
         return (
@@ -319,7 +316,7 @@ function NamePrompt({ ownerName, onSave, onCancel }: { ownerName: string | null;
         aria-modal
         aria-labelledby="name-title"
       >
-        <p id="name-title" className="text-xl font-semibold tracking-tight">What’s your name?</p>
+        <p id="name-title" className="title">What’s your name?</p>
         <p className="text-sm text-muted">So {ownerName ?? "the designer"} knows who said what. It’s only shown on this board.</p>
         <input
           autoFocus
@@ -333,7 +330,7 @@ function NamePrompt({ ownerName, onSave, onCancel }: { ownerName: string | null;
           <button type="button" onClick={onCancel} className="label text-muted hover:text-ink">
             Cancel
           </button>
-          <button disabled={!name.trim()} className="bg-ink px-4 py-2 font-medium text-paper disabled:opacity-50">
+          <button disabled={!name.trim()} className="rounded-kit bg-ink px-4 py-2 font-medium text-paper disabled:opacity-50">
             Continue
           </button>
         </div>

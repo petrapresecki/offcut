@@ -44,7 +44,7 @@ export default async function BoardPage({ params }: Props) {
       }
       empty={
         <>
-          <p className="text-3xl leading-tight font-semibold tracking-tight" style={{ fontStretch: "112%" }}>
+          <p className="title">
             {board.name} is empty.
           </p>
           <p className="text-muted">Drop images here to save them straight onto this board, or add them from your library.</p>

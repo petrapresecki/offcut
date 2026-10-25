@@ -258,25 +258,25 @@ export function Moodboard({
             </label>
           </div>
           {tray.length > 0 && (
-            <button onClick={() => arrangeAll(true)} className="label border border-ink px-2.5 py-1">
+            <button onClick={() => arrangeAll(true)} className="label field px text-ink-2.5 py-1">
               Place all
             </button>
           )}
-          <button onClick={() => arrangeAll(false)} disabled={!placed.length} className="label border border-line px-2.5 py-1 text-muted hover:text-ink disabled:opacity-40">
+          <button onClick={() => arrangeAll(false)} disabled={!placed.length} className="label field px-2.5 py-1 text-muted hover:text-ink disabled:opacity-40">
             Arrange
           </button>
           <span className="flex-1" />
           <span className="label text-muted" aria-live="polite">
             {status === "saving" ? "Saving…" : status === "unsaved" ? "Unsaved" : status === "error" ? <span className="text-danger">Not saved</span> : "Saved"}
           </span>
-          <button onClick={exportPdf} disabled={!placed.length || !!exporting} className="bg-ink px-3 py-1.5 text-sm font-medium text-paper disabled:opacity-50">
+          <button onClick={exportPdf} disabled={!placed.length || !!exporting} className="rounded-kit bg-ink px-3 py-1.5 text-sm font-medium text-paper disabled:opacity-50">
             {exporting ?? "Export PDF"}
           </button>
         </div>
 
         <div
           ref={stage}
-          className="relative grid min-h-0 flex-1 place-items-center overflow-hidden bg-[repeating-linear-gradient(45deg,transparent_0_10px,var(--line)_10px_11px)]"
+          className="relative grid min-h-0 flex-1 place-items-center overflow-hidden bg-sheet"
           onPointerDown={(e) => e.target === e.currentTarget && setSelected(null)}
         >
           <div

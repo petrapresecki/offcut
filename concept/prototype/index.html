@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offcut: cutting prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Anybody:ital,wdth,wght@0,50..150,100..900&family=Syne:wght@800&family=Unbounded:wght@500..900&family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Concept A, reworked: the idea is the cutting (offcuts), the look is a catalogue on one flat colour.
+     Stand-ins: Anton for ABC Gravity Compressed, Inter Tight for ABC Diatype, Geist Mono for ABC Diatype Mono. */
+  :root {
+    --paper: #ff4a00; --ink: #000; --sheet: #fff;
+    --display: "Anton", "Arial Narrow", sans-serif;
+    --sans: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+    --mono: "Geist Mono", ui-monospace, monospace;
+  }
+  /* Registered so the palette gradient can glide from one set of colours to the next. */
+  @property --g1 { syntax: "<color>"; inherits: true; initial-value: #ff4a00; }
+  @property --g2 { syntax: "<color>"; inherits: true; initial-value: #ff4a00; }
+  @property --g3 { syntax: "<color>"; inherits: true; initial-value: #ff4a00; }
+  @property --g4 { syntax: "<color>"; inherits: true; initial-value: #ff4a00; }
+  [data-way="yellow"] { --paper: #ffe600; }
+  [data-way="lilac"] { --paper: #c8b6ff; }
+  [data-way="paper"] { --paper: #ece9e2; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--paper); color: var(--ink); transition: background .4s; }
+  body[data-bg="fountain"], body[data-bg="palette"] { background: transparent; }
+
+  /* Background treatments. */
+  .bg { position: fixed; inset: 0; z-index: -1; opacity: 0; transition: opacity .6s; pointer-events: none; }
+  /* Split fountain: three risograph inks blended on one roller, so the page is one print run. */
+  [data-bg="fountain"] .fountain { opacity: 1; }
+  .fountain { background: linear-gradient(100deg, #ffe800 0%, #ffd400 18%, #ff8fc8 46%, #ff48b0 60%, #ff6c2f 100%); }
+  .fountain::after { content: ""; position: absolute; inset: 0; mix-blend-mode: multiply; opacity: .35;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+  /* Your colours: a soft field mixed from the palettes of what's in the library. */
+  [data-bg="palette"] .palette { opacity: 1; }
+  .palette { transition: opacity .6s, --g1 1.6s, --g2 1.6s, --g3 1.6s, --g4 1.6s;
+    background:
+      radial-gradient(60% 70% at 12% 18%, color-mix(in oklab, var(--g1) 70%, white) 0%, transparent 70%),
+      radial-gradient(55% 65% at 88% 12%, color-mix(in oklab, var(--g2) 70%, white) 0%, transparent 70%),
+      radial-gradient(70% 70% at 80% 92%, color-mix(in oklab, var(--g3) 70%, white) 0%, transparent 70%),
+      radial-gradient(70% 70% at 10% 95%, color-mix(in oklab, var(--g4) 70%, white) 0%, transparent 70%),
+      color-mix(in oklab, var(--g1) 30%, white); }
+
+  /* Type options. The headline always holds a real number. */
+  h1 .w { display: inline-block; }
+  [data-type="stretch"] h1 { font: 800 clamp(80px, 15vw, 270px)/.82 "Anybody", sans-serif; font-stretch: 50%; text-transform: uppercase; letter-spacing: .005em; }
+  [data-type="wide"] h1 { font: 800 clamp(56px, 10vw, 180px)/.9 "Unbounded", sans-serif; text-transform: none; letter-spacing: -.04em; }
+  [data-type="syne"] h1 { font: 800 clamp(70px, 13vw, 230px)/.86 "Syne", sans-serif; text-transform: none; letter-spacing: -.045em; }
+  [data-type="clash"] h1 { font: 900 clamp(80px, 15vw, 270px)/.82 "Anybody", sans-serif; font-stretch: 150%; text-transform: none; letter-spacing: -.05em; }
+  [data-type="clash"] h1 .w2 { font: italic 400 1em/.8 "Instrument Serif", serif; letter-spacing: -.02em; font-stretch: normal; }
+  body { font: 500 15px/1.4 var(--sans); padding: 0 20px 120px; }
+
+  nav { display: grid; grid-template-columns: 1fr 1fr 1fr auto; border-top: 2px solid var(--ink); padding: 12px 0; align-items: baseline; }
+  nav a, nav button { color: inherit; text-decoration: none; font: 600 15px var(--sans); background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+  nav button { text-decoration: underline; text-underline-offset: 3px; }
+
+  h1 { font: 400 clamp(88px, 17vw, 300px)/.8 var(--display); text-transform: uppercase; margin: 8px 0 0; letter-spacing: -.005em; }
+  .intro { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid var(--ink); margin-top: 28px; padding-top: 16px; gap: 20px; }
+  .intro p { margin: 0; font: 600 clamp(20px, 2.1vw, 30px)/1.12 var(--sans); letter-spacing: -.015em; max-width: 22em; }
+  .intro .count { font: 400 14px var(--mono); border-top: 1px solid var(--ink); padding-top: 10px; margin-top: 18px; }
+
+  /* The wall: offcuts laid on the colour, each trimmed along its own cut line. */
+  .wall { display: grid; grid-template-columns: repeat(6, 1fr); gap: 38px 22px; margin-top: 64px; align-items: start; }
+  .piece { position: relative; }
+  .piece .cut { display: block; background: var(--sheet); padding: 6px; filter: drop-shadow(0 10px 14px rgb(0 0 0 / .22)); transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+  .piece svg { display: block; width: 100%; height: auto; }
+  .piece:hover .cut { transform: rotate(0deg) translateY(-4px) !important; }
+  .piece figcaption { font: 400 12px/1.3 var(--mono); margin-top: 10px; opacity: 0; transition: opacity .2s; }
+  .piece:hover figcaption { opacity: 1; }
+
+  /* The cutting overlay. */
+  .stage { position: fixed; inset: 0; pointer-events: none; z-index: 20; display: grid; place-items: center; }
+  .print { position: absolute; width: min(400px, 60vw); }
+  .print .cut { display: block; background: var(--sheet); padding: 10px; filter: drop-shadow(0 30px 40px rgb(0 0 0 / .3)); }
+  .print svg { display: block; width: 100%; height: auto; }
+  .blade { position: absolute; inset: 0; overflow: visible; }
+
+  /* Prototype only: the variant switcher. */
+  .switch { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; gap: 6px; background: #000; color: #fff; padding: 6px; font: 400 12px var(--mono); z-index: 30; align-items: center; }
+  .switch button { font: inherit; color: #fff; background: none; border: 1px solid #555; padding: 5px 9px; cursor: pointer; }
+  .switch button[aria-pressed="true"] { background: #fff; color: #000; border-color: #fff; }
+  .switch .go { background: var(--paper); color: #000; border-color: var(--paper); }
+
+  @media (max-width: 760px) {
+    nav { grid-template-columns: 1fr auto; } nav .hide { display: none; }
+    .intro { grid-template-columns: 1fr; }
+    .wall { grid-template-columns: repeat(2, 1fr); gap: 28px 16px; }
+  }
+</style>
+</head>
+<body data-way="orange" data-type="stretch" data-bg="flat">
+  <div class="bg fountain"></div>
+  <div class="bg palette" id="pal"></div>
+  <nav>
+    <a href="#">Offcut</a>
+    <a href="#" class="hide">Library</a>
+    <a href="#" class="hide">Boards</a>
+    <button id="add">Add images</button>
+  </nav>
+  <h1><span class="w"><span id="n">37</span></span> <span class="w w2">offcuts</span></h1>
+  <section class="intro">
+    <p>Everything you couldn’t throw away. Find it again by colour, send it as a moodboard.</p>
+    <div>
+      <p style="font-weight:500;font-size:clamp(16px,1.3vw,19px);line-height:1.35">Drop images anywhere on this page, or paste one. Each one is trimmed, read for its colours and laid on the pile.</p>
+      <div class="count"><span id="n2">37</span> images kept. 6 boards. Last one saved today.</div>
+    </div>
+  </section>
+  <section class="wall" id="wall"></section>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="switch" role="group" aria-label="Prototype controls" style="flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 24px)">
+    <span style="padding:0 6px">Type</span>
+    <button data-type="stretch" aria-pressed="true">Stretch</button>
+    <button data-type="wide">Wide</button>
+    <button data-type="syne">Syne</button>
+    <button data-type="clash">Clash</button>
+    <span style="padding:0 6px">Background</span>
+    <button data-bg="flat" aria-pressed="true">Flat</button>
+    <button data-bg="fountain">Split fountain</button>
+    <button data-bg="palette">Your colours</button>
+    <span style="padding:0 6px">Colour</span>
+    <button data-way="orange" aria-pressed="true">Orange</button>
+    <button data-way="yellow">Yellow</button>
+    <button data-way="lilac">Lilac</button>
+    <button data-way="paper">Paper</button>
+    <button class="go" id="cut">Cut one in</button>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Flip.min.js"></script>
+<script>
+gsap.registerPlugin(Flip);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// Posters drawn in SVG, so the prototype shows no one else's work. Same set as the landing page.
+const P = [
+  ["sun","Riso",1.4,"#e8412b","#f4ead5","#1d1d1b"],["stripes","Tide",1.3,"#1f3a5f","#f2c14e","#f7f4ec"],
+  ["blocks","Pack",1,"#f4ead5","#2f6b4f","#e07a5f"],["dots","Night",1.42,"#141414","#ff4f9a","#eeeeee"],
+  ["arch","Flora",1.3,"#c9d6c2","#3b3b98","#f9a03f"],["letter","K",1.25,"#f2c94c","#141414","#d7263d"],
+  ["sun","Sun",1.2,"#f28c28","#fff3e0","#5a1e0e"],["letter","a",1.4,"#efe6d2","#2b59c3","#2b59c3"],
+  ["dots","Grid",1,"#2a9d8f","#f4ead5","#f2c94c"],["arch","Plum",1.35,"#7b4fb3","#f4ead5","#ff6fa5"],
+  ["blocks","Slab",1.25,"#fafafa","#141414","#d7263d"],["stripes","Wave",1.15,"#ff6fa5","#1f2a44","#fafafa"],
+];
+function poster([kind, word, ratio, bg, ink, accent]) {
+  const h = Math.round(100 * ratio);
+  let s = `<rect width="100" height="${h}" fill="${bg}"/>`;
+  if (kind === "sun") s += `<circle cx="68" cy="${h*.34}" r="24" fill="${accent}"/><rect y="${h*.62}" width="100" height="${h*.38}" fill="${accent}" opacity=".18"/>`;
+  if (kind === "dots") for (let r=0;r<6;r++) for (let c=0;c<6;c++) s += `<circle cx="${14+c*14.5}" cy="${12+r*11}" r="${(r+c)%3===0?4.5:2.2}" fill="${accent}"/>`;
+  if (kind === "stripes") for (let i=0;i<7;i++) s += `<rect y="${8+i*9}" width="100" height="4" fill="${i%2?accent:ink}"/>`;
+  if (kind === "arch") s += `<path d="M18 ${h*.62} V${h*.36} A32 32 0 0 1 82 ${h*.36} V${h*.62} Z" fill="${accent}"/>`;
+  if (kind === "blocks") s += `<rect x="10" y="10" width="48" height="36" fill="${accent}"/><rect x="46" y="34" width="44" height="26" fill="${ink}"/>`;
+  s += kind === "letter"
+    ? `<text x="50" y="${h*.7}" text-anchor="middle" font-size="92" font-weight="800" fill="${ink}" font-family="Anton, sans-serif">${word}</text><rect x="8" y="8" width="14" height="4" fill="${accent}"/>`
+    : `<text x="8" y="${h-10}" font-size="${word.length>4?21:24}" font-weight="800" fill="${ink}" font-family="Inter Tight, sans-serif">${word}</text>`;
+  return `<svg viewBox="0 0 100 ${h}" role="img" aria-label="${word} poster">${s}</svg>`;
+}
+
+// Every offcut keeps the shape of its own cut: a slightly crooked line across the bottom
+// and a hair off square at the top, the way a knife and a ruler actually leave paper.
+const rnd = (a, b) => a + Math.random() * (b - a);
+function trim() { return { a: rnd(0, 2.5), b: rnd(0, 2.5), y1: rnd(80, 93), y2: rnd(80, 93) }; }
+const clip = t => `polygon(0 ${t.a}%, 100% ${t.b}%, 100% ${t.y2}%, 0 ${t.y1}%)`;
+
+const wall = document.getElementById("wall");
+let count = 37;
+function piece(p, t, tilt) {
+  const fig = document.createElement("figure");
+  fig.className = "piece"; fig.style.margin = 0;
+  fig.innerHTML = `<span class="cut" style="clip-path:${clip(t)};transform:rotate(${tilt}deg)">${poster(p)}</span>
+    <figcaption>${p[1]} poster<br>${p[3].toUpperCase()} ${p[4].toUpperCase()}</figcaption>`;
+  return fig;
+}
+P.slice(0, 11).forEach(p => wall.appendChild(piece(p, trim(), rnd(-2.5, 2.5))));
+
+// Prototype controls.
+for (const key of ["way", "type", "bg"]) {
+  document.querySelectorAll(`.switch [data-${key}]`).forEach(b => b.onclick = () => {
+    document.body.dataset[key] = b.dataset[key];
+    document.querySelectorAll(`.switch [data-${key}]`).forEach(x => x.setAttribute("aria-pressed", x === b));
+  });
+}
+
+// "Your colours": the field is mixed from the palettes of the four most recent offcuts.
+const recent = [];
+function feedPalette(p) {
+  recent.unshift(p[3], p[5]);
+  recent.length = Math.min(recent.length, 8);
+  const pal = document.getElementById("pal");
+  [0, 1, 2, 3].forEach(i => pal.style.setProperty(`--g${i + 1}`, recent[i * 2] ?? recent[0]));
+}
+P.slice(0, 4).reverse().forEach(feedPalette);
+let next = 11;
+const cutIn = () => cut(P[next++ % P.length]);
+document.getElementById("cut").onclick = cutIn;
+document.getElementById("add").onclick = cutIn;
+
+/**
+ * The signature moment: the saved image lands as a full print, a blade draws one straight
+ * line across it, the strip below the line drops away, and the trimmed piece is laid on the wall.
+ */
+function cut(p) {
+  const t = trim();
+  const tilt = rnd(-2.5, 2.5);
+  const stage = document.getElementById("stage");
+  const ratio = p[2];
+
+  // The real card goes into the wall now, invisible, so the wall can make room (Flip).
+  const state = Flip.getState(wall.children);
+  const card = piece(p, t, tilt);
+  card.style.visibility = "hidden";
+  wall.prepend(card);
+  if (!reduce) Flip.from(state, { duration: .7, ease: "power3.inOut", delay: .9 });
+  document.getElementById("n").textContent = document.getElementById("n2").textContent = ++count;
+  feedPalette(p);
+
+  if (reduce) { card.style.visibility = ""; return; }
+
+  // The print in the middle of the screen, in two copies: what's kept and what's cut off.
+  const print = document.createElement("div");
+  print.className = "print";
+  const keep = `<span class="cut" style="clip-path:${clip(t)}">${poster(p)}</span>`;
+  const scrap = `<span class="cut" style="position:absolute;inset:0;clip-path:polygon(0 ${t.y1}%, 100% ${t.y2}%, 100% 100%, 0 100%)">${poster(p)}</span>`;
+  // The blade's path, in the print's own coordinates (percentages of its box).
+  print.innerHTML = `<div class="keep">${keep}</div><div class="scrap" style="position:absolute;inset:0">${scrap}</div>
+    <svg class="blade" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <line x1="-6" y1="${t.y1 - (t.y2 - t.y1) * .06}" x2="106" y2="${t.y2 + (t.y2 - t.y1) * .06}" stroke="#000" stroke-width="1.6" vector-effect="non-scaling-stroke" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>
+    </svg>`;
+  stage.appendChild(print);
+  const line = print.querySelector("line");
+  const scrapEl = print.querySelector(".scrap");
+  const keepEl = print.querySelector(".keep");
+
+  const tl = gsap.timeline({ onComplete: () => { card.style.visibility = ""; print.remove(); } });
+  // 1. The print is put down: a short, heavy drop rather than a float.
+  tl.from(print, { y: -40, scale: 1.04, opacity: 0, duration: .35, ease: "power2.out" })
+  // 2. One stroke of the blade, slow at the ends like a real cut along a ruler.
+    .to(line, { strokeDashoffset: 0, duration: .5, ease: "power2.inOut" }, "+=.12")
+  // 3. The strip falls off, turning as paper does.
+    .to(scrapEl, { y: () => innerHeight * .7, rotation: rnd(10, 22), opacity: 0, duration: .9, ease: "power2.in" }, ">-.02")
+    .to(line, { opacity: 0, duration: .15 }, "<")
+  // 4. The kept piece is laid on the wall, landing at its own small angle.
+    .add(() => {
+      const target = card.querySelector(".cut").getBoundingClientRect();
+      const from = keepEl.getBoundingClientRect();
+      gsap.to(print, {
+        x: target.left + target.width / 2 - (from.left + from.width / 2),
+        y: target.top + target.height / 2 - (from.top + from.height / 2),
+        scale: target.width / from.width,
+        rotation: tilt,
+        duration: .75, ease: "power3.inOut",
+      });
+    }, "+=.05")
+    .to({}, { duration: .8 });
+  // With the variable-width face, the headline is squeezed by the cut and springs back.
+  if (document.body.dataset.type === "stretch")
+    tl.to("h1", { fontStretch: "110%", duration: .25, ease: "power2.out" }, 1.0)
+      .to("h1", { fontStretch: "50%", duration: .9, ease: "elastic.out(1, .45)" }, ">");
+}
+</script>
+</body>
+</html>

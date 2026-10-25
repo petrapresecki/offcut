@@ -7,15 +7,15 @@ export default async function LibraryLayout({ children }: { children: React.Reac
   const user = await requireUser();
   return (
     <div className="min-h-dvh">
-      <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-line bg-paper/90 px-4 py-3 backdrop-blur sm:px-6">
+      <header className="sticky top-0 z-30 flex items-center justify-between gap-4 bg-paper/85 px-4 py-3.5 backdrop-blur sm:px-5">
         <div className="flex items-center gap-6 sm:gap-10">
           <Wordmark href="/library" />
           <NavLinks />
         </div>
         <div className="flex items-center gap-4">
-          <span className="label hidden text-muted sm:inline">{user.email}</span>
+          <span className="hidden text-muted sm:inline">{user.email}</span>
           <form action={signOut}>
-            <button className="label text-muted hover:text-ink">Sign out</button>
+            <button className="link">Sign out</button>
           </form>
         </div>
       </header>

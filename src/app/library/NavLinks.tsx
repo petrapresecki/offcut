@@ -6,9 +6,9 @@ import { usePathname } from "next/navigation";
 export function NavLinks() {
   const path = usePathname();
   const onBoards = path.startsWith("/library/boards");
-  const link = "label py-1 transition-colors hover:text-ink aria-[current=page]:text-ink aria-[current=page]:underline aria-[current=page]:decoration-accent aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-4";
+  const link = "py-1 text-muted transition-colors hover:text-ink aria-[current=page]:text-ink";
   return (
-    <nav className="flex items-center gap-4 text-muted">
+    <nav className="flex items-center gap-5">
       <Link href="/library" aria-current={!onBoards && path === "/library" ? "page" : undefined} className={link}>
         Library
       </Link>

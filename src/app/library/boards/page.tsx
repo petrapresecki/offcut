@@ -13,20 +13,17 @@ export default async function BoardsPage() {
     <main className="px-4 pt-6 pb-24 sm:px-6">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl leading-none font-semibold tracking-tight" style={{ fontStretch: "112%" }}>
-            Boards
+          <h1 className="title">
+            Boards<sup>{boards.length}</sup>
           </h1>
-          <p className="label mt-2 text-muted">
-            {boards.length} {boards.length === 1 ? "board" : "boards"}
-          </p>
         </div>
         <NewBoard />
       </div>
 
       {boards.length === 0 ? (
-        <div className="crop-marks grid min-h-[50vh] place-items-center border border-dashed border-line p-8 text-center [--marks-opacity:1]">
+        <div className="crop-marks grid min-h-[50vh] place-items-center field p-8 text-center [--marks-opacity:1]">
           <div className="max-w-sm space-y-3">
-            <p className="text-2xl font-semibold tracking-tight" style={{ fontStretch: "112%" }}>
+            <p className="title">
               One board per project, client or mood.
             </p>
             <p className="text-muted">Make one here, or select images in your library and add them to a new board.</p>
