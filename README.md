@@ -22,8 +22,10 @@ Open http://localhost:3000 and sign in with any email. Without an email key, the
 - Saving images by drag and drop anywhere on the page, pasting with ⌘V, or choosing files
 - In the browser, before upload: a thumbnail, a colour palette (median cut) and a perceptual hash
 - A warning when an image is already in the library, even resized or recompressed
-- Masonry library, category filter
-- Detail view: palette chips that copy as HEX, RGB or CMYK; title, note, category, credit and source, saved on blur; ← / → between images; delete
+- Masonry library
+- Search by colour (presets or any colour), text search over notes, titles, credits and tags, category and tag filters; all kept in the URL
+- Tags with suggestions; boards with cover mosaics, rename and delete; select several images to add to a board; dropping images on a board page saves them to that board
+- Detail view: palette chips that copy as HEX, RGB or CMYK; title, note, category, tags, boards, credit and source, saved as you go; “Find colour” from any swatch; ← / → between images; delete
 
 ## Deploy to Cloudflare
 

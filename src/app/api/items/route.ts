@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { getBucket, getDb } from "@/db";
-import { items, type Swatch } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
+import { boards, items, type Swatch } from "@/db/schema";
 import { getUser } from "@/lib/auth";
+import { addToBoard } from "@/lib/boards";
 import { ACCEPTED_TYPES, MAX_BYTES } from "@/lib/image";
 
 const EXT: Record<string, string> = {
@@ -25,7 +27,8 @@ function parseMeta(raw: unknown) {
     if (!Number.isInteger(m.width) || !Number.isInteger(m.height) || m.width < 1 || m.height < 1) return null;
     if (typeof m.phash !== "string" || !/^[0-9a-f]{16}$/.test(m.phash)) return null;
     const sourceUrl = typeof m.sourceUrl === "string" && /^https?:\/\//.test(m.sourceUrl) ? m.sourceUrl.slice(0, 2000) : null;
-    return { width: m.width as number, height: m.height as number, phash: m.phash as string, palette, sourceUrl };
+    const boardId = typeof m.boardId === "string" ? m.boardId : null;
+    return { width: m.width as number, height: m.height as number, phash: m.phash as string, palette, sourceUrl, boardId };
   } catch {
     return null;
   }
@@ -55,9 +58,13 @@ export async function POST(req: Request) {
 
   const db = await getDb();
   const title = file.name && !/^image\.\w+$/i.test(file.name) ? file.name.replace(/\.[^.]+$/, "").slice(0, 200) : null;
+  const { boardId, ...fields } = meta;
   const [item] = await db
     .insert(items)
-    .values({ id, userId: user.id, imageKey, thumbKey, mime: file.type, bytes: file.size, title, ...meta })
+    .values({ id, userId: user.id, imageKey, thumbKey, mime: file.type, bytes: file.size, title, ...fields })
     .returning();
+  // Saved from a board page: put it on that board too, if the board is the user's.
+  if (boardId && (await db.query.boards.findFirst({ where: and(eq(boards.id, boardId), eq(boards.userId, user.id)) })))
+    await addToBoard(boardId, id);
   return NextResponse.json({ item }, { status: 201 });
 }

@@ -19,12 +19,14 @@ Next.js 15 App Router on Cloudflare Workers via `@opennextjs/cloudflare`. D1 (SQ
 - Only hashes of sign-in tokens and session ids are stored
 - Styling: tokens in `src/app/globals.css` (`paper sheet ink muted line accent danger`), `.label` for mono uppercase metadata, `.wordmark`, `.crop-marks` for the corner-mark motif. Images bring the colour; the interface stays paper and ink with one fluorescent pink accent
 - Fonts: Archivo (variable width, used wide for display) and IBM Plex Mono
+- Filters (`q`, `color`, `category`, `tag`) live in the URL and run in the browser over the loaded cards (`src/lib/filter.ts`). Fine for libraries up to a few thousand images; move to SQL if that changes
+- Boards live under `/library/boards`; uploads from a board page are added to that board
 - Conventional commits (`feat:`, `fix:`, `style:`, `chore:`)
 
 ## Roadmap
 1. ✅ Foundation, auth, saving, library, detail view
 2. Phone saving: installable app + Web Share Target
-3. Search by colour, tags, text search, boards
+3. ✅ Search by colour, tags, text search, boards
 4. Landing page with the motion showcase
 5. Moodboard canvas, PDF export, presentation mode, client feedback, crop, pinned notes
 6. Save from links, AI tags, typeface guess, "more like this"

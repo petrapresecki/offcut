@@ -7,7 +7,9 @@ import { motion } from "motion/react";
 import type { Swatch } from "@/db/schema";
 import { CATEGORIES } from "@/lib/categories";
 import { hexToRgb, luminance, rgbToCmyk } from "@/lib/color";
-import { deleteItem, updateItem, type ItemFields } from "../actions";
+import { addTag, createBoard, deleteItem, removeTag, setItemOnBoard, updateItem, type ItemFields } from "../actions";
+import type { BoardRef } from "../Library";
+import { normalizeTag } from "@/lib/tags";
 
 type Detail = ItemFields & {
   id: string;
@@ -30,7 +32,17 @@ function formatSwatch(hex: string, format: Format) {
   return hex.toUpperCase();
 }
 
-export function ItemDetail({ item, prevId, nextId }: { item: Detail; prevId: string | null; nextId: string | null }) {
+type Props = {
+  item: Detail;
+  tags: string[];
+  allTags: string[];
+  boards: BoardRef[];
+  onBoards: string[];
+  prevId: string | null;
+  nextId: string | null;
+};
+
+export function ItemDetail({ item, tags, allTags, boards, onBoards, prevId, nextId }: Props) {
   const router = useRouter();
   const [fields, setFields] = useState<ItemFields>(item);
   const saved = useRef<ItemFields>(item);
@@ -125,6 +137,7 @@ export function ItemDetail({ item, prevId, nextId }: { item: Detail; prevId: str
               ))}
             </select>
           </label>
+          <Tags itemId={item.id} initial={tags} suggestions={allTags} />
           <label className="block space-y-1">
             <span className="label text-muted">Designer / credit</span>
             <input value={fields.credit} onChange={set("credit")} onBlur={() => save()} placeholder="Studio or designer" className={field} />
@@ -139,6 +152,8 @@ export function ItemDetail({ item, prevId, nextId }: { item: Detail; prevId: str
             {status === "error" && <span className="text-danger">{error ?? "Couldn’t save."}</span>}
           </p>
         </section>
+
+        <Boards itemId={item.id} boards={boards} initial={onBoards} />
 
         <section className="label space-y-1 border-t border-line pt-4 text-muted">
           <p>{item.width} × {item.height} px · {item.mime.replace("image/", "").toUpperCase()} · {(item.bytes / 1024 / 1024).toFixed(1)} MB</p>
@@ -225,11 +240,152 @@ function Palette({ palette }: { palette: Swatch[] }) {
                   {formatSwatch(s.hex, format)}
                 </span>
               </button>
+              <Link href={`/library?color=${s.hex.slice(1)}`} className="label mt-1 block text-muted hover:text-ink">
+                Find colour →
+              </Link>
             </motion.li>
           );
         })}
       </ul>
       {format === "cmyk" && <p className="text-xs text-muted">CMYK values are approximate. Check against your print profile.</p>}
+    </section>
+  );
+}
+
+function Tags({ itemId, initial, suggestions }: { itemId: string; initial: string[]; suggestions: string[] }) {
+  const [tags, setTags] = useState(initial);
+  const [draft, setDraft] = useState("");
+  const [, startTransition] = useTransition();
+  const listId = `tag-suggestions-${itemId}`;
+
+  const add = (raw: string) => {
+    const name = normalizeTag(raw);
+    setDraft("");
+    if (!name || tags.includes(name)) return;
+    setTags((t) => [...t, name].sort());
+    startTransition(() => addTag(itemId, name));
+  };
+  const remove = (name: string) => {
+    setTags((t) => t.filter((x) => x !== name));
+    startTransition(() => removeTag(itemId, name));
+  };
+
+  return (
+    <div className="space-y-2">
+      <span className="label block text-muted" id={`${listId}-label`}>Tags</span>
+      <ul className="flex flex-wrap gap-1.5" aria-labelledby={`${listId}-label`}>
+        {tags.map((t) => (
+          <li key={t} className="flex items-center border border-line bg-sheet">
+            <Link href={`/library?tag=${encodeURIComponent(t)}`} className="py-0.5 pl-2 text-sm hover:underline">
+              #{t}
+            </Link>
+            <button onClick={() => remove(t)} aria-label={`Remove tag ${t}`} className="px-1.5 text-muted hover:text-danger">
+              ×
+            </button>
+          </li>
+        ))}
+      </ul>
+      <input
+        value={draft}
+        list={listId}
+        onChange={(e) => {
+          // Typing a comma adds the tag, like most tag fields.
+          if (e.target.value.endsWith(",")) add(e.target.value.slice(0, -1));
+          else setDraft(e.target.value);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            add(draft);
+          }
+          if (e.key === "Backspace" && !draft && tags.length) remove(tags[tags.length - 1]);
+        }}
+        onBlur={() => draft && add(draft)}
+        placeholder="Add a tag, press Enter"
+        aria-label="Add a tag"
+        className="w-full border-b border-line bg-transparent py-1.5 text-sm outline-none focus-visible:border-ink focus-visible:outline-none"
+      />
+      <datalist id={listId}>
+        {suggestions.filter((s) => !tags.includes(s)).map((s) => (
+          <option key={s} value={s} />
+        ))}
+      </datalist>
+    </div>
+  );
+}
+
+function Boards({ itemId, boards, initial }: { itemId: string; boards: BoardRef[]; initial: string[] }) {
+  const [list, setList] = useState(boards);
+  const [on, setOn] = useState(new Set(initial));
+  const [naming, setNaming] = useState(false);
+  const [name, setName] = useState("");
+  const [pending, startTransition] = useTransition();
+
+  const toggle = (id: string) => {
+    const next = !on.has(id);
+    setOn((s) => {
+      const copy = new Set(s);
+      if (next) copy.add(id);
+      else copy.delete(id);
+      return copy;
+    });
+    startTransition(() => setItemOnBoard(id, itemId, next));
+  };
+
+  const create = () =>
+    startTransition(async () => {
+      const res = await createBoard(name, itemId);
+      if ("board" in res && res.board) {
+        const board = res.board;
+        setList((l) => [board, ...l]);
+        setOn((s) => new Set(s).add(board.id));
+        setName("");
+        setNaming(false);
+      }
+    });
+
+  return (
+    <section className="space-y-2 border-t border-line pt-4" aria-label="Boards">
+      <h2 className="label text-muted">Boards</h2>
+      <div className="flex flex-wrap gap-1.5">
+        {list.map((b) => (
+          <button
+            key={b.id}
+            aria-pressed={on.has(b.id)}
+            onClick={() => toggle(b.id)}
+            className="border border-line px-2.5 py-1 text-sm transition-colors hover:border-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper"
+          >
+            {on.has(b.id) ? "✓ " : "+ "}
+            {b.name}
+          </button>
+        ))}
+        {naming ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              create();
+            }}
+            className="flex items-center gap-2"
+          >
+            <input
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === "Escape" && setNaming(false)}
+              placeholder="Board name"
+              aria-label="New board name"
+              className="border-b border-ink bg-transparent py-1 text-sm outline-none focus-visible:outline-none"
+            />
+            <button disabled={!name.trim() || pending} className="label bg-ink px-2 py-1 text-paper disabled:opacity-50">
+              Create
+            </button>
+          </form>
+        ) : (
+          <button onClick={() => setNaming(true)} className="label border border-dashed border-line px-2.5 py-1.5 text-muted hover:text-ink">
+            New board
+          </button>
+        )}
+      </div>
     </section>
   );
 }

@@ -2,40 +2,51 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import type { Swatch } from "@/db/schema";
-import { CATEGORIES } from "@/lib/categories";
+import { ItemCard, Masonry } from "@/components/Grid";
+import { applyFilters, filtersToQuery, readFilters, type Filters } from "@/lib/filter";
 import { ACCEPTED_TYPES, prepareImage, type Prepared } from "@/lib/image";
-import { checkDuplicate } from "./actions";
+import type { CardItem } from "@/lib/items";
+import { addItemsToBoard, checkDuplicate, createBoard, removeItemsFromBoard, setItemOnBoard } from "./actions";
+import { FilterBar } from "./FilterBar";
 
-export type CardItem = {
-  id: string;
-  thumbUrl: string;
-  width: number;
-  height: number;
-  palette: Swatch[];
-  title: string | null;
-  category: string | null;
-};
+export type BoardRef = { id: string; name: string; slug: string };
 
 type Upload = {
   key: string;
   preview: string;
-  name: string;
   status: "preparing" | "uploading" | "duplicate" | "error";
   message?: string;
   prepared?: Prepared;
   duplicate?: { id: string; thumbUrl: string };
 };
 
-export function Library({ items }: { items: CardItem[] }) {
+type Props = {
+  items: CardItem[];
+  boards: BoardRef[];
+  /** When set, this is a board page: uploads land on the board too. */
+  board?: BoardRef;
+  heading: React.ReactNode;
+  empty: React.ReactNode;
+};
+
+export function Library({ items, boards, board, heading, empty }: Props) {
   const router = useRouter();
+  const params = useSearchParams();
   const [, startTransition] = useTransition();
   const [uploads, setUploads] = useState<Upload[]>([]);
   const [dragging, setDragging] = useState(false);
-  const [category, setCategory] = useState<string | null>(null);
+  const [filters, setFilters] = useState<Filters>(() => readFilters(new URLSearchParams(params.toString())));
+  const [selecting, setSelecting] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const fileInput = useRef<HTMLInputElement>(null);
+
+  // Filters live in the URL so a filtered view can be bookmarked or reached from a swatch.
+  const changeFilters = (next: Filters) => {
+    setFilters(next);
+    window.history.replaceState(null, "", `${window.location.pathname}${filtersToQuery(next)}`);
+  };
 
   const patch = (key: string, next: Partial<Upload> | null) =>
     setUploads((list) =>
@@ -54,28 +65,24 @@ export function Library({ items }: { items: CardItem[] }) {
       form.set("file", prepared.file);
       form.set("thumb", new File([prepared.thumb], "thumb.jpg", { type: "image/jpeg" }));
       const { width, height, palette, phash } = prepared;
-      form.set("meta", JSON.stringify({ width, height, palette, phash }));
+      form.set("meta", JSON.stringify({ width, height, palette, phash, boardId: board?.id }));
       const res = await fetch("/api/items", { method: "POST", body: form }).catch(() => null);
       if (!res?.ok) {
         const body = (await res?.json().catch(() => null)) as { error?: string } | null;
-        const message = body?.error ?? "Couldn’t save. Check your connection.";
-        patch(key, { status: "error", message });
+        patch(key, { status: "error", message: body?.error ?? "Couldn’t save. Check your connection." });
         return;
       }
       startTransition(() => router.refresh());
       patch(key, null);
     },
-    [router],
+    [router, board?.id],
   );
 
   const addFiles = useCallback(
     (files: Iterable<File>) => {
       for (const file of files) {
         const key = crypto.randomUUID();
-        setUploads((list) => [
-          { key, preview: URL.createObjectURL(file), name: file.name, status: "preparing" },
-          ...list,
-        ]);
+        setUploads((list) => [{ key, preview: URL.createObjectURL(file), status: "preparing" }, ...list]);
         (async () => {
           try {
             const prepared = await prepareImage(file);
@@ -94,8 +101,7 @@ export function Library({ items }: { items: CardItem[] }) {
   // ⌘V anywhere on the page saves an image from the clipboard.
   useEffect(() => {
     const onPaste = (e: ClipboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest("input, textarea, [contenteditable]")) return;
+      if ((e.target as HTMLElement).closest("input, textarea, [contenteditable]")) return;
       const files = [...(e.clipboardData?.files ?? [])].filter((f) => f.type.startsWith("image/"));
       if (files.length) {
         e.preventDefault();
@@ -142,22 +148,42 @@ export function Library({ items }: { items: CardItem[] }) {
     };
   }, [addFiles]);
 
-  const shown = useMemo(() => (category ? items.filter((i) => i.category === category) : items), [items, category]);
-  const usedCategories = CATEGORIES.filter((c) => items.some((i) => i.category === c));
+  const shown = useMemo(() => applyFilters(items, filters), [items, filters]);
+  const categories = useMemo(() => [...new Set(items.flatMap((i) => (i.category ? [i.category] : [])))], [items]);
+  const tags = useMemo(() => [...new Set(items.flatMap((i) => i.tags))].sort(), [items]);
+  const filtered = shown.length !== items.length;
+
+  const toggle = (id: string) =>
+    setSelected((s) => {
+      const next = new Set(s);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const stopSelecting = () => {
+    setSelecting(false);
+    setSelected(new Set());
+  };
 
   return (
-    <main className="px-4 pt-6 pb-24 sm:px-6">
+    <main className="px-4 pt-6 pb-32 sm:px-6">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl leading-none font-semibold tracking-tight" style={{ fontStretch: "112%" }}>
-            Library
-          </h1>
-          <p className="label mt-2 text-muted">
-            {items.length} {items.length === 1 ? "image" : "images"}
+          {heading}
+          <p className="label mt-2 text-muted" aria-live="polite">
+            {filtered ? `${shown.length} of ${items.length}` : items.length} {items.length === 1 ? "image" : "images"}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="label hidden text-muted md:inline">Drop, paste ⌘V, or</span>
+          {items.length > 0 && (
+            <button
+              onClick={() => (selecting ? stopSelecting() : setSelecting(true))}
+              className="label border border-line px-3 py-2 text-muted hover:text-ink"
+            >
+              {selecting ? "Done" : "Select"}
+            </button>
+          )}
+          <span className="label hidden text-muted lg:inline">Drop, paste ⌘V, or</span>
           <button
             onClick={() => fileInput.current?.click()}
             className="bg-ink px-4 py-2 font-medium text-paper transition-transform active:scale-95"
@@ -178,38 +204,75 @@ export function Library({ items }: { items: CardItem[] }) {
         </div>
       </div>
 
-      {usedCategories.length > 0 && (
-        <nav aria-label="Filter by category" className="mb-6 flex flex-wrap gap-2">
-          {[null, ...usedCategories].map((c) => (
-            <button
-              key={c ?? "all"}
-              aria-pressed={category === c}
-              onClick={() => setCategory(c)}
-              className="label border border-line px-3 py-1.5 text-muted transition-colors hover:text-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper"
-            >
-              {c ?? "All"}
-            </button>
-          ))}
-        </nav>
-      )}
+      {items.length > 0 && <FilterBar filters={filters} onChange={changeFilters} categories={categories} tags={tags} />}
 
       {items.length === 0 && uploads.length === 0 ? (
-        <EmptyState onChoose={() => fileInput.current?.click()} />
+        <div className="crop-marks grid min-h-[60vh] place-items-center border border-dashed border-line p-8 text-center [--marks-opacity:1]">
+          <div className="max-w-md space-y-4">
+            {empty}
+            <button onClick={() => fileInput.current?.click()} className="bg-ink px-4 py-2 font-medium text-paper">
+              Choose images
+            </button>
+          </div>
+        </div>
+      ) : shown.length === 0 && uploads.length === 0 ? (
+        <div className="grid min-h-[40vh] place-items-center text-center">
+          <div className="space-y-3">
+            <p className="text-xl font-semibold">Nothing matches.</p>
+            <button onClick={() => changeFilters({ q: "", color: null, category: null, tag: null })} className="label text-muted underline underline-offset-2 hover:text-ink">
+              Clear filters
+            </button>
+          </div>
+        </div>
       ) : (
         <Masonry>
           {uploads.map((u) => (
             <UploadCard
               key={u.key}
               upload={u}
+              boardName={board?.name}
               onKeep={() => u.prepared && send(u.key, u.prepared)}
+              onUseExisting={
+                board && u.duplicate
+                  ? async () => {
+                      await setItemOnBoard(board.id, u.duplicate!.id, true);
+                      patch(u.key, null);
+                      router.refresh();
+                    }
+                  : undefined
+              }
               onDismiss={() => patch(u.key, null)}
             />
           ))}
           {shown.map((item) => (
-            <ItemCard key={item.id} item={item} />
+            <ItemCard
+              key={item.id}
+              data-ratio={item.height / item.width}
+              item={item}
+              href={`/library/${item.id}`}
+              selecting={selecting}
+              selected={selected.has(item.id)}
+              onToggle={() => toggle(item.id)}
+            />
           ))}
         </Masonry>
       )}
+
+      <AnimatePresence>
+        {selecting && (
+          <SelectionBar
+            count={selected.size}
+            boards={boards.filter((b) => b.id !== board?.id)}
+            currentBoard={board}
+            onAll={() => setSelected(new Set(shown.map((i) => i.id)))}
+            onDone={() => {
+              stopSelecting();
+              router.refresh();
+            }}
+            ids={[...selected]}
+          />
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {dragging && (
@@ -219,13 +282,9 @@ export function Library({ items }: { items: CardItem[] }) {
             exit={{ opacity: 0 }}
             className="pointer-events-none fixed inset-0 z-50 grid place-items-center bg-paper/80 p-6 backdrop-blur-sm"
           >
-            <motion.div
-              initial={{ scale: 0.96 }}
-              animate={{ scale: 1 }}
-              className="crop-marks grid h-full w-full place-items-center border border-dashed border-ink [--marks-opacity:1]"
-            >
-              <p className="text-4xl font-semibold tracking-tight" style={{ fontStretch: "125%" }}>
-                Drop to save
+            <motion.div initial={{ scale: 0.96 }} animate={{ scale: 1 }} className="crop-marks grid h-full w-full place-items-center border border-dashed border-ink [--marks-opacity:1]">
+              <p className="text-center text-4xl font-semibold tracking-tight" style={{ fontStretch: "125%" }}>
+                {board ? `Drop to save to ${board.name}` : "Drop to save"}
               </p>
             </motion.div>
           </motion.div>
@@ -235,72 +294,121 @@ export function Library({ items }: { items: CardItem[] }) {
   );
 }
 
-/** Shortest-column masonry, so the newest images sit along the top row instead of down the first column. */
-function Masonry({ children }: { children: React.ReactNode[] | React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [count, setCount] = useState(4);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([entry]) => {
-      const w = entry.contentRect.width;
-      setCount(w < 520 ? 2 : w < 900 ? 3 : w < 1300 ? 4 : w < 1700 ? 5 : 6);
-    });
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
+function SelectionBar({
+  count,
+  ids,
+  boards,
+  currentBoard,
+  onAll,
+  onDone,
+}: {
+  count: number;
+  ids: string[];
+  boards: BoardRef[];
+  currentBoard?: BoardRef;
+  onAll: () => void;
+  onDone: () => void;
+}) {
+  const [pending, startTransition] = useTransition();
+  const [naming, setNaming] = useState(false);
+  const [name, setName] = useState("");
 
-  const nodes = (Array.isArray(children) ? children.flat() : [children]) as React.ReactElement<{
-    item?: CardItem;
-    upload?: Upload;
-  }>[];
-  const columns: React.ReactElement[][] = Array.from({ length: count }, () => []);
-  const heights = new Array(count).fill(0);
-  for (const node of nodes) {
-    if (!node) continue;
-    const { item } = node.props;
-    const ratio = item ? item.height / item.width : 1;
-    const col = heights.indexOf(Math.min(...heights));
-    columns[col].push(node);
-    heights[col] += ratio + 0.15;
-  }
+  const addTo = (boardId: string) => startTransition(async () => {
+    await addItemsToBoard(boardId, ids);
+    onDone();
+  });
+
+  const removeFromBoard = () => startTransition(async () => {
+    if (!currentBoard) return;
+    await removeItemsFromBoard(currentBoard.id, ids);
+    onDone();
+  });
+
+  const createAndAdd = () => startTransition(async () => {
+    const res = await createBoard(name);
+    if ("board" in res && res.board) {
+      await addItemsToBoard(res.board.id, ids);
+      onDone();
+    }
+  });
 
   return (
-    <div ref={ref} className="flex items-start gap-3 sm:gap-4">
-      {columns.map((col, i) => (
-        <div key={i} className="flex min-w-0 flex-1 flex-col gap-3 sm:gap-4">
-          {col}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ItemCard({ item }: { item: CardItem }) {
-  return (
-    <motion.div layout="position" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.6 }}>
-      <Link href={`/library/${item.id}`} className="crop-marks group block" aria-label={item.title ?? "Open image"}>
-        <div className="overflow-hidden" style={{ aspectRatio: `${item.width} / ${item.height}`, background: item.palette[0]?.hex }}>
-          {/* eslint-disable-next-line @next/next/no-img-element -- served from R2; next/image can't optimise on Workers */}
-          <img
-            src={item.thumbUrl}
-            alt={item.title ?? ""}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-[1.02]"
-          />
-        </div>
-        <div className="mt-2 flex h-2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-          {item.palette.map((s) => (
-            <span key={s.hex} style={{ background: s.hex, flexGrow: Math.max(s.weight, 0.05) }} />
-          ))}
-        </div>
-      </Link>
+    <motion.div
+      initial={{ y: 80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 80, opacity: 0 }}
+      transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.4 }}
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-ink bg-ink px-4 py-3 text-paper sm:px-6"
+    >
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="label">{count} selected</span>
+        <button onClick={onAll} className="label text-paper/70 hover:text-paper">Select all shown</button>
+        <span className="flex-1" />
+        {naming ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              createAndAdd();
+            }}
+            className="flex items-center gap-2"
+          >
+            <input
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Board name"
+              className="border-b border-paper/40 bg-transparent py-1 outline-none placeholder:text-paper/50 focus-visible:border-paper focus-visible:outline-none"
+            />
+            <button disabled={!name.trim() || !count || pending} className="label bg-accent px-3 py-1.5 text-accent-ink disabled:opacity-50">
+              Create & add
+            </button>
+          </form>
+        ) : (
+          <>
+            {boards.length > 0 && (
+              <select
+                disabled={!count || pending}
+                value=""
+                onChange={(e) => e.target.value && addTo(e.target.value)}
+                className="label border border-paper/30 bg-ink px-2 py-1.5 text-paper disabled:opacity-50"
+                aria-label="Add selected images to a board"
+              >
+                <option value="">Add to board…</option>
+                {boards.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            {currentBoard && (
+              <button disabled={!count || pending} onClick={removeFromBoard} className="label border border-paper/30 px-3 py-1.5 disabled:opacity-50">
+                Remove from board
+              </button>
+            )}
+            <button disabled={!count || pending} onClick={() => setNaming(true)} className="label bg-accent px-3 py-1.5 text-accent-ink disabled:opacity-50">
+              New board
+            </button>
+          </>
+        )}
+      </div>
     </motion.div>
   );
 }
 
-function UploadCard({ upload, onKeep, onDismiss }: { upload: Upload; onKeep: () => void; onDismiss: () => void }) {
+function UploadCard({
+  upload,
+  boardName,
+  onKeep,
+  onUseExisting,
+  onDismiss,
+}: {
+  upload: Upload;
+  boardName?: string;
+  onKeep: () => void;
+  onUseExisting?: () => void;
+  onDismiss: () => void;
+}) {
   const busy = upload.status === "preparing" || upload.status === "uploading";
   return (
     <motion.div initial={{ opacity: 0, scale: 0.94, y: -12 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.5 }}>
@@ -324,7 +432,12 @@ function UploadCard({ upload, onKeep, onDismiss }: { upload: Upload; onKeep: () 
                 See it
               </Link>
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+              {onUseExisting && (
+                <button onClick={onUseExisting} className="label bg-ink px-2 py-1 text-paper">
+                  Add that one to {boardName}
+                </button>
+              )}
               <button onClick={onKeep} className="label border border-ink px-2 py-1">Save anyway</button>
               <button onClick={onDismiss} className="label px-2 py-1 text-muted hover:text-ink">Skip</button>
             </div>
@@ -332,23 +445,5 @@ function UploadCard({ upload, onKeep, onDismiss }: { upload: Upload; onKeep: () 
         )}
       </div>
     </motion.div>
-  );
-}
-
-function EmptyState({ onChoose }: { onChoose: () => void }) {
-  return (
-    <div className="crop-marks grid min-h-[60vh] place-items-center border border-dashed border-line p-8 text-center [--marks-opacity:1]">
-      <div className="max-w-md space-y-4">
-        <p className="text-3xl leading-tight font-semibold tracking-tight" style={{ fontStretch: "112%" }}>
-          Your offcuts go here.
-        </p>
-        <p className="text-muted">
-          Drop in posters, packaging, type, photos from the street. Paste a screenshot with ⌘V. Every image gets its colour palette on the way in.
-        </p>
-        <button onClick={onChoose} className="bg-ink px-4 py-2 font-medium text-paper">
-          Choose images
-        </button>
-      </div>
-    </div>
   );
 }
