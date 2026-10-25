@@ -3,4 +3,6 @@
 interface CloudflareEnv {
   RESEND_API_KEY?: string;
   EMAIL_FROM?: string;
+  /** Comma-separated emails that may sign in. Kept as a secret so it stays out of the repo. */
+  ALLOWED_EMAILS?: string;
 }

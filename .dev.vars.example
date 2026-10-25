@@ -2,3 +2,6 @@
 # without RESEND_API_KEY, sign-in links are printed in the terminal.
 RESEND_API_KEY=
 EMAIL_FROM="Offcut <hello@your-domain.com>"
+# Who may sign in, comma-separated. Leave empty locally to let anyone in;
+# in production it must be set (`wrangler secret put ALLOWED_EMAILS`) or nobody can sign in.
+ALLOWED_EMAILS=

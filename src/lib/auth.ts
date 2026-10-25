@@ -14,6 +14,13 @@ const LINK_MINUTES = 15;
 export const normalizeEmail = (email: string) => email.trim().toLowerCase();
 export const isEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+/** Whether this email may sign in. Without ALLOWED_EMAILS, anyone may in development and nobody in production. */
+export async function isAllowedEmail(email: string) {
+  const list = (await getEnv()).ALLOWED_EMAILS;
+  if (!list) return process.env.NODE_ENV === "development";
+  return list.split(",").map(normalizeEmail).includes(normalizeEmail(email));
+}
+
 /** Creates a one-time sign-in link. Returns the link itself only in development. */
 export async function createSignInLink(email: string): Promise<{ devLink?: string }> {
   const db = await getDb();

@@ -39,6 +39,7 @@ pnpm wrangler d1 create offcut          # put the id into wrangler.jsonc
 pnpm wrangler r2 bucket create offcut-images
 pnpm db:migrate:remote
 pnpm wrangler secret put RESEND_API_KEY # for sign-in emails
+pnpm wrangler secret put ALLOWED_EMAILS # comma-separated, only these can sign in
 pnpm deploy
 ```
 
