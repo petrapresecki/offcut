@@ -10,8 +10,8 @@ Learned from how Ohno Type Co, Collletttivo, Uncut, Displaay, 205TF, Koto, basem
 - **They name their fonts.**
 
 ## Offcut
-- **Type:** Ronzino 400/500 for all reading and clicking (15px body, 13px meta in grey, 24/31px for page titles). Sprat (variable, condensed black to extended) only for the one loud thing per screen: the wordmark and big counts. Necto Mono only for colour values. All three by Collletttivo, OFL; credited in the footer.
-- **No uppercase tracked micro-labels.** Sentence case, Ronzino, grey.
+- **Type:** Reddit Mono at 12.5px for all running text, buttons, labels, captions and colour values (12px for meta, in grey). Host Grotesk Light (300, tracking about -0.03em) for page titles, big sentences and names. Sprat only for the OFFCUT wordmark. Petra picked the pairing from her own portfolio prototype after trying nine options live in the app. Page counts sit beside titles as small mono brackets: Library [ 7 ].
+- **No uppercase tracked micro-labels** except those bracketed counts. Sentence case, grey.
 - **Colour:** paper #f1f0ec and ink #0c0c0c (dark mode: swapped). Links and the main action in plain link blue #0000ee. The images bring every other colour.
 - **Shape:** one shape for every control: a grey field with 6px corners (like Uncut's rows). The main action is the same shape in black. No pills, no shadows, no crop marks.
 - **The one loud thing:** the cut wordmark. OFFCUT in Sprat, sliced along one diagonal, the lower half slipped along the cut, like a trimmed sheet. On the landing page it sits on a split-fountain field (risograph inks blended on one roller, with real grain) that rolls with the pointer.

@@ -87,7 +87,7 @@ export function ItemCard({ item, href, selecting, selected, onToggle, badge }: C
         )}
       </div>
       {/* Captioned like an archive: what it is, then who made it. */}
-      <div className="mt-2 flex items-baseline justify-between gap-3 text-[13px] leading-tight">
+      <div className="mt-2 flex items-baseline justify-between gap-3 text-[12px] leading-tight">
         <span className="min-w-0 truncate">
           {item.title ?? <span className="text-muted">Untitled</span>}
           {item.credit && <span className="text-muted"> · {item.credit}</span>}

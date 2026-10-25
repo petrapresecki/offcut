@@ -47,11 +47,11 @@ export function Landing({ signedIn }: { signedIn: boolean }) {
         {/* The one loud thing: the cut wordmark on a split-fountain print. */}
         <FountainField className="mx-4 flex min-h-[78svh] flex-col justify-between rounded-[10px] p-4 sm:mx-5 sm:p-6">
           <div className="relative z-10 grid gap-6 md:grid-cols-12">
-            <p className="max-w-[16em] text-[clamp(22px,2.2vw,32px)] leading-[1.08] tracking-[-0.02em] md:col-span-6">
+            <p className="heading max-w-[16em] text-[clamp(22px,2.2vw,32px)] leading-[1.08] tracking-[-0.02em] md:col-span-6">
               A library for the images you couldn’t throw away.
             </p>
             <div className="flex items-start md:col-span-6 md:justify-end">
-              <Link href={cta.href} className="rounded-kit bg-[#0c0c0c] px-4 py-2.5 text-[15px] text-[#f1f0ec] transition-transform hover:-translate-y-0.5">
+              <Link href={cta.href} className="rounded-kit bg-[#0c0c0c] px-4 py-2.5 text-[13px] text-[#f1f0ec] transition-transform hover:-translate-y-0.5">
                 {cta.label}
               </Link>
             </div>
@@ -62,16 +62,16 @@ export function Landing({ signedIn }: { signedIn: boolean }) {
         </FountainField>
 
         <section id="what" className="grid gap-10 px-4 pt-20 sm:px-5 md:grid-cols-12">
-          <p className="text-[clamp(22px,2.3vw,31px)] leading-[1.15] tracking-[-0.015em] md:col-span-5">
+          <p className="heading text-[clamp(22px,2.3vw,31px)] leading-[1.15] tracking-[-0.015em] md:col-span-5">
             Posters, packaging, type, photos from the street. Keep them in one place, find them again by colour, and send them to a client as a moodboard.
             <span className="text-muted"> Your 3,723,018 open tabs can finally close.</span>
           </p>
           <ul className="md:col-span-7">
             {ROWS.map((r) => (
               <li key={r.name} className="field mb-1.5 grid grid-cols-[minmax(0,10rem)_1fr_auto] items-baseline gap-4 px-3 py-2.5 sm:grid-cols-[13rem_1fr_auto]">
-                <span className="text-[18px] tracking-[-0.01em]">{r.name}</span>
-                <span className="text-[14px] text-muted">{r.what}</span>
-                <span className="text-[13px] text-muted">{r.soon ? "Soon" : ""}</span>
+                <span className="heading text-[18px] tracking-[-0.01em]">{r.name}</span>
+                <span className="text-[12px] text-muted">{r.what}</span>
+                <span className="text-[12px] text-muted">{r.soon ? "Soon" : ""}</span>
               </li>
             ))}
           </ul>
@@ -102,16 +102,16 @@ export function Landing({ signedIn }: { signedIn: boolean }) {
         </section>
       </main>
 
-      <footer className="grid gap-6 border-t border-line px-4 pt-6 pb-10 text-[13px] sm:px-5 md:grid-cols-12">
+      <footer className="grid gap-6 border-t border-line px-4 pt-6 pb-10 sm:px-5 md:grid-cols-12">
         <p className="md:col-span-5">
           Offcut is for graphic designers who keep everything. Made in Zagreb.
         </p>
         <p className="text-muted md:col-span-5">
-          Set in Ronzino, Sprat and Necto Mono, open-source typefaces by{" "}
+          Set in Host Grotesk and Reddit Mono, with the wordmark in Sprat by{" "}
           <a href="https://www.collletttivo.it" className="link" target="_blank" rel="noreferrer">
             Collletttivo
           </a>
-          . The posters on this page are drawn for it.
+          . All three are open source. The posters on this page are drawn for it.
         </p>
         <Link href={cta.href} className="link md:col-span-2 md:justify-self-end">
           {cta.label}

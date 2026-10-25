@@ -40,9 +40,10 @@
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
   --color-danger: var(--danger);
-  --font-sans: var(--font-ronzino);
+  --font-sans: var(--font-reddit);
+  --font-heading: var(--font-host);
   --font-display: var(--font-sprat);
-  --font-mono: var(--font-necto);
+  --font-mono: var(--font-reddit);
   --radius-kit: 6px;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -50,9 +51,8 @@
 body {
   background: var(--paper);
   color: var(--ink);
-  font: 400 15px/1.4 var(--font-ronzino), "Helvetica Neue", Arial, sans-serif;
+  font: 400 12.5px/1.55 var(--font-reddit), ui-monospace, monospace;
   -webkit-font-smoothing: antialiased;
-  font-feature-settings: "ss01";
 }
 
 ::selection {
@@ -65,11 +65,11 @@ a {
   text-decoration-thickness: 1px;
 }
 
-/* Small grey meta text: sentence case, the body face, no tracking. Replaces mono caps labels. */
+/* Small meta text in the mono, sentence case. */
 .label {
-  font-family: var(--font-ronzino), sans-serif;
-  font-size: 13px;
-  line-height: 1.3;
+  font-family: var(--font-reddit), monospace;
+  font-size: 12px;
+  line-height: 1.4;
   letter-spacing: 0;
 }
 
@@ -87,18 +87,33 @@ a {
 
 /* Page titles: Ronzino, larger, with an optional superscript count. */
 .title {
-  font-size: clamp(26px, 2.6vw, 34px);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  font-weight: 500;
+  font-family: var(--font-host), sans-serif;
+  font-size: clamp(30px, 3vw, 46px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  font-weight: 300;
 }
+
+/* Big sentences and names: Host Grotesk Light. */
+.heading {
+  font-family: var(--font-host), sans-serif;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+/* A count beside a title, small and in brackets: Library [ 7 ]. */
 .title sup {
-  font-size: 0.42em;
-  font-weight: 400;
+  font: 400 10px var(--font-reddit), monospace;
   letter-spacing: 0;
-  margin-left: 0.15em;
-  vertical-align: 0.95em;
+  text-transform: uppercase;
+  margin-left: 0.6em;
+  vertical-align: 1.9em;
   color: var(--muted);
+}
+.title sup::before {
+  content: "[ ";
+}
+.title sup::after {
+  content: " ]";
 }
 
 /* Sprat, for the one loud thing per screen. */

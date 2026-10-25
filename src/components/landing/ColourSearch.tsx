@@ -59,7 +59,7 @@ export function ColourSearch() {
             <div className="aspect-[4/5] overflow-hidden rounded-kit">
               <Poster spec={p} cover />
             </div>
-            <figcaption className="mt-2 flex items-baseline justify-between gap-2 text-[13px]">
+            <figcaption className="mt-2 flex items-baseline justify-between gap-2 text-[12px]">
               <span>{p.word}</span>
               <span className="flex gap-1" aria-label={`Colours ${p.palette.map((s) => s.hex).join(", ")}`}>
                 {p.palette.map((s, i) => (
