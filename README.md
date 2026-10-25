@@ -43,7 +43,7 @@ pnpm wrangler secret put ALLOWED_EMAILS # comma-separated, only these can sign i
 pnpm deploy
 ```
 
-Set `APP_URL` in `wrangler.jsonc` to the deployed URL.
+Set `APP_URL` in `wrangler.jsonc` to the deployed URL (and to `http://localhost:3000` in `.dev.vars`).
 
 ## Scripts
 

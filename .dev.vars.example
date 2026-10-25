@@ -5,3 +5,5 @@ EMAIL_FROM="Offcut <hello@your-domain.com>"
 # Who may sign in, comma-separated. Leave empty locally to let anyone in;
 # in production it must be set (`wrangler secret put ALLOWED_EMAILS`) or nobody can sign in.
 ALLOWED_EMAILS=
+# wrangler.jsonc points APP_URL at the live site; keep sign-in links local.
+APP_URL=http://localhost:3000

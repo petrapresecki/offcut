@@ -10,11 +10,9 @@
       "binding": "DB",
       "database_name": "offcut",
       "database_id": "f31f1ce8-82cc-4444-9507-c55868ea0cc1",
-      // Local dev keeps the placeholder id so the existing local database stays in use.
-      "preview_database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "drizzle"
     }
   ],
   "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "offcut-images" }],
-  "vars": { "APP_URL": "http://localhost:3000" }
+  "vars": { "APP_URL": "https://offcut.offcut.workers.dev" }
 }
