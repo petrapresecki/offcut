@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { boardIdsForItem, listBoards } from "@/lib/boards";
+import { fontIdsForItem, listFonts } from "@/lib/fonts";
 import { getItem, imageUrl, listItems } from "@/lib/items";
 import { ItemDetail } from "./ItemDetail";
 
@@ -20,7 +21,13 @@ export default async function ItemPage({ params }: Props) {
   if (!item) notFound();
 
   // Neighbours in library order, for ← / → between images.
-  const [all, boards, onBoards] = await Promise.all([listItems(user.id), listBoards(user.id), boardIdsForItem(id)]);
+  const [all, boards, onBoards, fonts, usesFonts] = await Promise.all([
+    listItems(user.id),
+    listBoards(user.id),
+    boardIdsForItem(id),
+    listFonts(user.id),
+    fontIdsForItem(user.id, id),
+  ]);
   const ids = all.map((i) => i.id);
   const at = ids.indexOf(id);
 
@@ -44,6 +51,8 @@ export default async function ItemPage({ params }: Props) {
       }}
       boards={boards.map(({ id, name, slug }) => ({ id, name, slug }))}
       onBoards={onBoards}
+      fonts={fonts.map(({ id, family, style, url }) => ({ id, family, style, url }))}
+      usesFonts={usesFonts}
       prevId={ids[at - 1] ?? null}
       nextId={ids[at + 1] ?? null}
     />

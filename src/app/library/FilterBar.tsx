@@ -2,21 +2,23 @@
 
 import { useEffect, useRef } from "react";
 import { CATEGORIES } from "@/lib/categories";
-import { COLOR_PRESETS, type Filters } from "@/lib/filter";
+import { COLOR_PRESETS, emptyFilters, type Filters } from "@/lib/filter";
 
 type Props = {
   filters: Filters;
   onChange: (next: Filters) => void;
   categories: string[];
+  /** Names of the user's fonts by id, to label an active typeface filter. */
+  fontNames: Record<string, string>;
 };
 
 const chip =
   "label field px-2.5 py-1 text-muted transition-colors hover:text-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper";
 
-export function FilterBar({ filters, onChange, categories }: Props) {
+export function FilterBar({ filters, onChange, categories, fontNames }: Props) {
   const search = useRef<HTMLInputElement>(null);
   const set = (patch: Partial<Filters>) => onChange({ ...filters, ...patch });
-  const active = filters.q || filters.color || filters.category;
+  const active = filters.q || filters.color || filters.category || filters.font;
   const presetMatch = COLOR_PRESETS.some((c) => c.hex === filters.color);
 
   // "/" jumps to search from anywhere that isn't a text field.
@@ -93,8 +95,13 @@ export function FilterBar({ filters, onChange, categories }: Props) {
               {c}
             </button>
           ))}
+          {filters.font && (
+            <button type="button" aria-pressed onClick={() => set({ font: null })} className={chip} aria-label={`Stop filtering by ${fontNames[filters.font] ?? "typeface"}`}>
+              Typeface: {fontNames[filters.font] ?? "unknown"} ×
+            </button>
+          )}
           {active && (
-            <button type="button" onClick={() => onChange({ q: "", color: null, category: null })} className="label ml-auto px-2 py-1 text-muted underline-offset-2 hover:text-ink hover:underline">
+            <button type="button" onClick={() => onChange(emptyFilters)} className="label ml-auto px-2 py-1 text-muted underline-offset-2 hover:text-ink hover:underline">
               Clear filters
             </button>
           )}

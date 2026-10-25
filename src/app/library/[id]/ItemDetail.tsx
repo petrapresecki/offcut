@@ -7,7 +7,8 @@ import { motion } from "motion/react";
 import type { Swatch } from "@/db/schema";
 import { CATEGORIES } from "@/lib/categories";
 import { hexToRgb, luminance, rgbToCmyk } from "@/lib/color";
-import { createBoard, deleteItem, setItemOnBoard, updateItem, type ItemFields } from "../actions";
+import { faceName, useFontFaces } from "@/lib/use-font-faces";
+import { createBoard, deleteItem, setItemFont, setItemOnBoard, updateItem, type ItemFields } from "../actions";
 import type { BoardRef } from "../Library";
 
 type Detail = ItemFields & {
@@ -31,15 +32,19 @@ function formatSwatch(hex: string, format: Format) {
   return hex.toUpperCase();
 }
 
+export type FontChoice = { id: string; family: string; style: string; url: string };
+
 type Props = {
   item: Detail;
   boards: BoardRef[];
   onBoards: string[];
+  fonts: FontChoice[];
+  usesFonts: string[];
   prevId: string | null;
   nextId: string | null;
 };
 
-export function ItemDetail({ item, boards, onBoards, prevId, nextId }: Props) {
+export function ItemDetail({ item, boards, onBoards, fonts, usesFonts, prevId, nextId }: Props) {
   const router = useRouter();
   const [fields, setFields] = useState<ItemFields>(item);
   const saved = useRef<ItemFields>(item);
@@ -141,6 +146,7 @@ export function ItemDetail({ item, boards, onBoards, prevId, nextId }: Props) {
               })}
             </div>
           </fieldset>
+          <Typefaces itemId={item.id} fonts={fonts} initial={usesFonts} />
           <label className="block space-y-1">
             <span className="label text-muted">Designer / credit</span>
             <input value={fields.credit} onChange={set("credit")} onBlur={() => save()} placeholder="Studio or designer" className={field} />
@@ -252,6 +258,58 @@ function Palette({ palette }: { palette: Swatch[] }) {
       </ul>
       {format === "cmyk" && <p className="text-xs text-muted">CMYK values are approximate. Check against your print profile.</p>}
     </section>
+  );
+}
+
+/** Which of the user's imported fonts appear in this image; each chip shows "Aa" in its own face. */
+function Typefaces({ itemId, fonts, initial }: { itemId: string; fonts: FontChoice[]; initial: string[] }) {
+  const [on, setOn] = useState(new Set(initial));
+  const [, startTransition] = useTransition();
+  const loaded = useFontFaces(fonts);
+
+  const toggle = (id: string) => {
+    const next = !on.has(id);
+    setOn((s) => {
+      const copy = new Set(s);
+      if (next) copy.add(id);
+      else copy.delete(id);
+      return copy;
+    });
+    startTransition(() => setItemFont(itemId, id, next));
+  };
+
+  return (
+    <fieldset className="space-y-2">
+      <legend className="label mb-2 text-muted">Typefaces</legend>
+      {fonts.length === 0 ? (
+        <p className="text-muted">
+          No fonts yet.{" "}
+          <Link href="/library/fonts" className="link">
+            Import some
+          </Link>{" "}
+          to mark which ones this image uses.
+        </p>
+      ) : (
+        <div className="flex flex-wrap gap-1.5">
+          {fonts.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              aria-pressed={on.has(f.id)}
+              onClick={() => toggle(f.id)}
+              className="field flex items-baseline gap-2 px-2.5 py-1 transition-colors hover:text-ink aria-pressed:bg-ink aria-pressed:text-paper"
+            >
+              <span aria-hidden className="text-[15px] leading-none transition-opacity" style={{ fontFamily: `"${faceName(f.id)}"`, opacity: loaded.has(f.id) ? 1 : 0.2 }}>
+                Aa
+              </span>
+              <span>
+                {f.family} {f.style !== "Regular" && <span className="opacity-60">{f.style}</span>}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </fieldset>
   );
 }
 

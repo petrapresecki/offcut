@@ -2,6 +2,7 @@ import "server-only";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { boardItems, boards, items } from "@/db/schema";
+import { fontIdsByItem } from "./fonts";
 import { imageUrl, toCard } from "./items";
 
 export function slugify(name: string) {
@@ -56,7 +57,8 @@ export async function boardCards(userId: string, boardId: string) {
     .innerJoin(items, eq(items.id, boardItems.itemId))
     .where(and(eq(boardItems.boardId, boardId), eq(items.userId, userId)))
     .orderBy(desc(boardItems.position));
-  return rows.map((r) => toCard(r.item));
+  const fontMap = await fontIdsByItem(userId);
+  return rows.map((r) => toCard(r.item, fontMap));
 }
 
 /** Everything the moodboard editor needs: each item with its canvas placement (or null). */

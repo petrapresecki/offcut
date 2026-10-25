@@ -102,6 +102,49 @@ export const boardItems = sqliteTable(
   (t) => [primaryKey({ columns: [t.boardId, t.itemId] })],
 );
 
+// Fonts the user has imported. One row per style (file); the family groups them.
+export const fonts = sqliteTable(
+  "fonts",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    family: text("family").notNull(),
+    style: text("style").notNull(),
+    weight: integer("weight").notNull().default(400),
+    italic: integer("italic", { mode: "boolean" }).notNull().default(false),
+    fileKey: text("file_key").notNull(),
+    format: text("format").notNull(),
+    bytes: integer("bytes").notNull(),
+    designer: text("designer"),
+    foundry: text("foundry"),
+    foundryUrl: text("foundry_url"),
+    license: text("license"),
+    licenseUrl: text("license_url"),
+    version: text("version"),
+    glyphs: integer("glyphs"),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("fonts_user_family_style_idx").on(t.userId, t.family, t.style)],
+);
+
+// Which of the user's fonts appear in an image.
+export const itemFonts = sqliteTable(
+  "item_fonts",
+  {
+    itemId: text("item_id")
+      .notNull()
+      .references(() => items.id, { onDelete: "cascade" }),
+    fontId: text("font_id")
+      .notNull()
+      .references(() => fonts.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.itemId, t.fontId] })],
+);
+
+export type Font = typeof fonts.$inferSelect;
+
 // Feedback from people a board is shared with. They have no account: a random key kept in their
 // browser lets them change their own vote or remove their own comment.
 export const votes = sqliteTable(

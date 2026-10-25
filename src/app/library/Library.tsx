@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { ItemCard, Masonry } from "@/components/Grid";
 import { CATEGORIES } from "@/lib/categories";
-import { applyFilters, filtersToQuery, readFilters, type Filters } from "@/lib/filter";
+import { applyFilters, emptyFilters, filtersToQuery, readFilters, type Filters } from "@/lib/filter";
 import { ACCEPTED_TYPES, prepareImage, type Prepared } from "@/lib/image";
 import type { CardItem } from "@/lib/items";
 import { addItemsToBoard, checkDuplicate, createBoard, removeItemsFromBoard, setItemOnBoard } from "./actions";
@@ -32,9 +32,11 @@ type Props = {
   empty: React.ReactNode;
   /** Client feedback per item, shown on board pages. */
   badges?: Record<string, { up: number; down: number; notes: number }>;
+  /** Font names by id, for the typeface filter. */
+  fontNames?: Record<string, string>;
 };
 
-export function Library({ items, boards, board, heading, empty, badges }: Props) {
+export function Library({ items, boards, board, heading, empty, badges, fontNames = {} }: Props) {
   const router = useRouter();
   const params = useSearchParams();
   const [, startTransition] = useTransition();
@@ -245,7 +247,7 @@ export function Library({ items, boards, board, heading, empty, badges }: Props)
         </div>
       </div>
 
-      {items.length > 0 && <FilterBar filters={filters} onChange={changeFilters} categories={categories} />}
+      {items.length > 0 && <FilterBar filters={filters} onChange={changeFilters} categories={categories} fontNames={fontNames} />}
 
       {items.length === 0 && uploads.length === 0 ? (
         <div className="crop-marks grid min-h-[60vh] place-items-center field p-8 text-center [--marks-opacity:1]">
@@ -260,7 +262,7 @@ export function Library({ items, boards, board, heading, empty, badges }: Props)
         <div className="grid min-h-[40vh] place-items-center text-center">
           <div className="space-y-3">
             <p className="text-xl font-medium">Nothing matches.</p>
-            <button onClick={() => changeFilters({ q: "", color: null, category: null })} className="label text-muted underline underline-offset-2 hover:text-ink">
+            <button onClick={() => changeFilters(emptyFilters)} className="label text-muted underline underline-offset-2 hover:text-ink">
               Clear filters
             </button>
           </div>

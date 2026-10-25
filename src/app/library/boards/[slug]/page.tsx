@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { boardCards, getBoardBySlug, listBoards } from "@/lib/boards";
+import { listFonts } from "@/lib/fonts";
 import { boardFeedback } from "@/lib/share";
 import { Library } from "../../Library";
 import { BoardHeading } from "./BoardHeading";
@@ -18,7 +19,7 @@ export default async function BoardPage({ params }: Props) {
   const user = await requireUser();
   const board = await getBoardBySlug(user.id, (await params).slug);
   if (!board) notFound();
-  const [items, boards, feedback] = await Promise.all([boardCards(user.id, board.id), listBoards(user.id), boardFeedback(board.id)]);
+  const [items, boards, feedback, fonts] = await Promise.all([boardCards(user.id, board.id), listBoards(user.id), boardFeedback(board.id), listFonts(user.id)]);
   const badges: Record<string, { up: number; down: number; notes: number }> = {};
   for (const i of items) {
     const v = feedback.votes.filter((x) => x.itemId === i.id);
@@ -28,6 +29,7 @@ export default async function BoardPage({ params }: Props) {
   const ref = { id: board.id, name: board.name, slug: board.slug };
   return (
     <Library
+      fontNames={Object.fromEntries(fonts.map((f) => [f.id, `${f.family} ${f.style}`]))}
       key={board.id}
       items={items}
       board={ref}

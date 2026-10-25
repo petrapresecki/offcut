@@ -35,9 +35,9 @@ export function colorScore(palette: Swatch[], hex: string) {
   return best;
 }
 
-export type Filters = { q: string; color: string | null; category: string | null };
+export type Filters = { q: string; color: string | null; category: string | null; font: string | null };
 
-export const emptyFilters: Filters = { q: "", color: null, category: null };
+export const emptyFilters: Filters = { q: "", color: null, category: null, font: null };
 
 export function readFilters(params: URLSearchParams): Filters {
   const color = params.get("color");
@@ -45,6 +45,7 @@ export function readFilters(params: URLSearchParams): Filters {
     q: params.get("q") ?? "",
     color: color && /^[0-9a-f]{6}$/i.test(color) ? `#${color.toLowerCase()}` : null,
     category: params.get("category"),
+    font: params.get("font"),
   };
 }
 
@@ -53,6 +54,7 @@ export function filtersToQuery(f: Filters) {
   if (f.q) params.set("q", f.q);
   if (f.color) params.set("color", f.color.slice(1));
   if (f.category) params.set("category", f.category);
+  if (f.font) params.set("font", f.font);
   const s = params.toString();
   return s ? `?${s}` : "";
 }
@@ -63,6 +65,7 @@ type Filterable = {
   note: string | null;
   credit: string | null;
   category: string | null;
+  fontIds?: string[];
 };
 
 /** Applies the filters; with a colour filter, the best matches come first. */
@@ -70,6 +73,7 @@ export function applyFilters<T extends Filterable>(items: T[], f: Filters): T[] 
   const words = f.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const matched = items.filter((i) => {
     if (f.category && i.category !== f.category) return false;
+    if (f.font && !i.fontIds?.includes(f.font)) return false;
     if (words.length) {
       const text = [i.title, i.note, i.credit, i.category].join(" ").toLowerCase();
       if (!words.every((w) => text.includes(w))) return false;

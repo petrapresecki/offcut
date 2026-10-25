@@ -3,6 +3,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { items, type Swatch } from "@/db/schema";
 import { hammingHex } from "./color";
+import { fontIdsByItem } from "./fonts";
 
 export const imageUrl = (key: string) => `/api/img/${key}`;
 
@@ -17,6 +18,8 @@ export type CardItem = {
   note: string | null;
   credit: string | null;
   category: string | null;
+  /** Imported fonts marked as used in this image. */
+  fontIds: string[];
 };
 
 export async function listItems(userId: string) {
@@ -24,7 +27,7 @@ export async function listItems(userId: string) {
   return db.select().from(items).where(eq(items.userId, userId)).orderBy(desc(items.createdAt));
 }
 
-export function toCard(i: typeof items.$inferSelect): CardItem {
+export function toCard(i: typeof items.$inferSelect, fontMap?: Map<string, string[]>): CardItem {
   return {
     id: i.id,
     thumbUrl: imageUrl(i.thumbKey),
@@ -35,11 +38,13 @@ export function toCard(i: typeof items.$inferSelect): CardItem {
     note: i.note,
     credit: i.credit,
     category: i.category,
+    fontIds: fontMap?.get(i.id) ?? [],
   };
 }
 
 export async function listCards(userId: string) {
-  return (await listItems(userId)).map(toCard);
+  const [rows, fontMap] = await Promise.all([listItems(userId), fontIdsByItem(userId)]);
+  return rows.map((r) => toCard(r, fontMap));
 }
 
 export async function getItem(userId: string, id: string) {

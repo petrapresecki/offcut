@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray } from "drizzle-orm";
 import { getBucket, getDb } from "@/db";
-import { boardItems, boards, comments, items } from "@/db/schema";
+import { boardItems, boards, comments, fonts, itemFonts, items } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { randomToken } from "@/lib/crypto";
 import { addToBoard, uniqueSlug } from "@/lib/boards";
@@ -58,6 +58,27 @@ async function ownsItem(userId: string, itemId: string) {
 async function ownedBoard(userId: string, boardId: string) {
   const db = await getDb();
   return db.query.boards.findFirst({ where: and(eq(boards.id, boardId), eq(boards.userId, userId)) });
+}
+
+export async function deleteFont(fontId: string) {
+  const user = await requireUser();
+  const db = await getDb();
+  const [row] = await db
+    .delete(fonts)
+    .where(and(eq(fonts.id, fontId), eq(fonts.userId, user.id)))
+    .returning();
+  if (row) await (await getBucket()).delete(row.fileKey);
+  revalidatePath("/library", "layout");
+}
+
+export async function setItemFont(itemId: string, fontId: string, on: boolean) {
+  const user = await requireUser();
+  const db = await getDb();
+  const font = await db.query.fonts.findFirst({ where: and(eq(fonts.id, fontId), eq(fonts.userId, user.id)), columns: { id: true } });
+  if (!font || !(await ownsItem(user.id, itemId))) return;
+  if (on) await db.insert(itemFonts).values({ itemId, fontId }).onConflictDoNothing();
+  else await db.delete(itemFonts).where(and(eq(itemFonts.itemId, itemId), eq(itemFonts.fontId, fontId)));
+  revalidatePath("/library", "layout");
 }
 
 export async function createBoard(rawName: string, itemId?: string) {

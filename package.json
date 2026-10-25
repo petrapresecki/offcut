@@ -22,6 +22,7 @@
     "jspdf": "^4.2.1",
     "motion": "^14.6.0",
     "next": "15.5.4",
+    "opentype.js": "2.0.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "server-only": "^0.0.1"
