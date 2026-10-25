@@ -103,15 +103,8 @@ export function Landing({ signedIn }: { signedIn: boolean }) {
       </main>
 
       <footer className="grid gap-6 border-t border-line px-4 pt-6 pb-10 sm:px-5 md:grid-cols-12">
-        <p className="md:col-span-5">
+        <p className="md:col-span-10">
           Offcut is for graphic designers who keep everything. Made in Zagreb.
-        </p>
-        <p className="text-muted md:col-span-5">
-          Set in Host Grotesk and Reddit Mono, with the wordmark in Sprat by{" "}
-          <a href="https://www.collletttivo.it" className="link" target="_blank" rel="noreferrer">
-            Collletttivo
-          </a>
-          . All three are open source. The posters on this page are drawn for it.
         </p>
         <Link href={cta.href} className="link md:col-span-2 md:justify-self-end">
           {cta.label}
